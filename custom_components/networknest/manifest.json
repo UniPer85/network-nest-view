@@ -1,0 +1,12 @@
+{
+  "domain": "networknest",
+  "name": "NetworkNest",
+  "documentation": "https://github.com/networknest/homeassistant-integration",
+  "dependencies": [],
+  "codeowners": ["@networknest"],
+  "requirements": ["aiohttp"],
+  "iot_class": "cloud_polling",
+  "version": "1.0.0",
+  "config_flow": true,
+  "integration_type": "hub"
+}

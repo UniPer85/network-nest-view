@@ -1,0 +1,22 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "NetworkNest Setup",
+        "description": "Configure your NetworkNest integration with your API credentials.",
+        "data": {
+          "api_key": "API Key",
+          "base_url": "Base URL (e.g., https://your-project.supabase.co)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to NetworkNest API. Please check your base URL and network connection.",
+      "invalid_auth": "Invalid API key. Please check your API key and try again.",
+      "unknown": "An unexpected error occurred. Please try again later."
+    },
+    "abort": {
+      "already_configured": "NetworkNest integration is already configured for this instance."
+    }
+  }
+}
