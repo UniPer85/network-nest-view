@@ -1,0 +1,24 @@
+# NetworkNest Integration Services
+# This file defines services that can be called from Home Assistant
+
+refresh_data:
+  name: Refresh NetworkNest Data
+  description: Force refresh of NetworkNest data from API
+  fields:
+    config_entry_id:
+      name: Config Entry ID
+      description: The configuration entry ID for the NetworkNest integration
+      required: false
+      selector:
+        text:
+
+test_connection:
+  name: Test NetworkNest Connection
+  description: Test the connection to NetworkNest API
+  fields:
+    config_entry_id:
+      name: Config Entry ID  
+      description: The configuration entry ID for the NetworkNest integration
+      required: false
+      selector:
+        text:

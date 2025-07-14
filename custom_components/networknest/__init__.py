@@ -2,12 +2,15 @@
 from __future__ import annotations
 
 import logging
+import os
 from datetime import timedelta
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+from homeassistant.components.frontend import add_extra_js_url
+from homeassistant.components.http import StaticPathConfig
 
 from .const import DOMAIN, UPDATE_INTERVAL
 from .api import NetworkNestAPI
@@ -26,9 +29,36 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
     
+    # Register frontend resources
+    await _register_frontend_resources(hass)
+    
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     
     return True
+
+
+async def _register_frontend_resources(hass: HomeAssistant) -> None:
+    """Register frontend resources for custom cards."""
+    integration_dir = os.path.dirname(__file__)
+    frontend_dir = os.path.join(integration_dir, "frontend")
+    
+    # Register static files
+    hass.http.register_static_path(
+        f"/{DOMAIN}",
+        frontend_dir,
+        cache_headers=False,
+    )
+    
+    # Register custom cards
+    cards = [
+        "networknest-device-card.js",
+        "networknest-bandwidth-card.js", 
+        "networknest-overview-card.js"
+    ]
+    
+    for card in cards:
+        add_extra_js_url(hass, f"/{DOMAIN}/{card}")
+        _LOGGER.info("Registered NetworkNest card: %s", card)
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

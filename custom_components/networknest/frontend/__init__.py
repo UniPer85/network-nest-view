@@ -1,0 +1,1 @@
+"""Frontend resources for NetworkNest integration."""

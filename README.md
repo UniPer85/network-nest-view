@@ -14,12 +14,12 @@ A modern, comprehensive network monitoring solution with Home Assistant integrat
 - **Responsive Design**: Works perfectly on desktop and mobile devices
 
 ### Home Assistant Integration
-- **Native HA Integration**: Install via HACS or manually
+- **Native HA Integration**: Install via HACS or manually with custom Lovelace cards included
 - **Real-time Sensors**: Bandwidth, connected devices, network status, uptime
+- **Individual Device Sensors**: Each network device becomes a separate entity
 - **Device Discovery**: Automatic device registration in Home Assistant
 - **Automation Ready**: Use network data in your Home Assistant automations
-- **Dashboard Cards**: Pre-built cards for Home Assistant dashboards
-- **Custom Lovelace Cards**: Beautiful custom cards for network visualization
+- **Custom Lovelace Cards**: Beautiful custom cards automatically included with integration
 
 ### Technical Features
 - **Supabase Backend**: Scalable database with real-time updates
@@ -51,17 +51,37 @@ A modern, comprehensive network monitoring solution with Home Assistant integrat
 
 #### Via HACS (Recommended)
 
-1. Add this repository as a custom HACS repository
-2. Install "NetworkNest" from HACS
-3. Restart Home Assistant
-4. Add the integration via Settings → Devices & Services
+1. **Add Custom Repository**:
+   - Open HACS in Home Assistant
+   - Go to "Integrations" → "Custom Repositories"
+   - Add this repository URL as an "Integration"
+
+2. **Install NetworkNest**:
+   - Search for "NetworkNest" in HACS
+   - Install the integration
+   - Restart Home Assistant
+
+3. **Configure Integration**:
+   - Go to Settings → Devices & Services
+   - Add "NetworkNest" integration
+   - Enter your NetworkNest URL and API key
+   - Custom cards are automatically registered!
 
 #### Manual Installation
 
-1. Download the `custom_components/networknest` folder
-2. Copy to your Home Assistant `custom_components` directory
-3. Restart Home Assistant
-4. Add the integration via Settings → Devices & Services
+1. **Download Integration**:
+   ```bash
+   cd /config/custom_components/
+   git clone https://github.com/YOUR_USERNAME/networknest.git networknest
+   ```
+
+2. **Restart Home Assistant**
+
+3. **Configure Integration**:
+   - Go to Settings → Devices & Services  
+   - Add "NetworkNest" integration
+   - Enter your configuration details
+   - Custom cards are automatically available!
 
 ## 📖 Documentation
 
