@@ -48,13 +48,13 @@ export const NetworkDashboard = () => {
           </Badge>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {dashboardItems.map((item, index) => {
             const Icon = item.icon;
             return (
               <div
                 key={item.title}
-                className="flex items-center space-x-4 p-4 rounded-lg bg-muted/20 hover:bg-muted/30 transition-colors animate-fade-in"
+                className="flex items-center space-x-4 p-6 rounded-lg bg-muted/20 hover:bg-muted/30 transition-colors animate-fade-in"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 <div className={`p-3 rounded-full ${
