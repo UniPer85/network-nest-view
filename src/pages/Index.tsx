@@ -11,7 +11,7 @@ import { Settings } from "lucide-react";
 const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-dark">
-      <div className="container mx-auto p-6 space-y-6">
+      <div className="container mx-auto p-6">
         <div className="flex justify-end mb-6">
           <Link to="/auth">
             <Button variant="outline" className="flex items-center gap-2">
@@ -26,8 +26,13 @@ const Index = () => {
         </div>
         
         {/* Full width Network Dashboard */}
+      </div>
+      
+      <div className="px-6 mb-6">
         <NetworkDashboard />
-        
+      </div>
+      
+      <div className="container mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
           {/* Left column: Remaining components stacked */}
           <div className="lg:col-span-2 space-y-6">
