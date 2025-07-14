@@ -34,7 +34,7 @@ A modern, comprehensive network monitoring solution with Home Assistant integrat
 
 1. **Using Docker Compose**
    ```bash
-   git clone https://github.com/UniPer85/networknest.git
+   git clone https://github.com/UniPer85/network-nest-view.git
    cd networknest
    docker-compose up -d
    ```
@@ -43,8 +43,8 @@ A modern, comprehensive network monitoring solution with Home Assistant integrat
 2. **Using Docker (Build & Run)**
    ```bash
    # Clone the repository first
-   git clone https://github.com/UniPer85/networknest.git
-   cd networknest
+   git clone https://github.com/UniPer85/network-nest-view.git
+   cd network-nest-view
    
    # Build and run the container
    docker build -t networknest .
