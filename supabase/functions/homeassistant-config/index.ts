@@ -62,8 +62,11 @@ serve(async (req) => {
       const body = await req.json()
       
       // Generate new API key
-      const { data: apiKeyData } = await supabaseClient.rpc('generate_ha_api_key')
-      const apiKey = apiKeyData
+      const { data: apiKey, error: rpcError } = await supabaseClient.rpc('generate_ha_api_key')
+      
+      if (rpcError) {
+        throw rpcError
+      }
 
       const { data: config, error } = await supabaseClient
         .from('homeassistant_config')
@@ -72,7 +75,7 @@ serve(async (req) => {
           api_key: apiKey,
           ha_instance_name: body.ha_instance_name,
           ha_instance_url: body.ha_instance_url,
-          enabled: true
+          enabled: body.enabled
         })
         .select()
         .single()
