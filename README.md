@@ -30,7 +30,28 @@ A modern, comprehensive network monitoring solution with Home Assistant integrat
 
 ## 🚀 Quick Start
 
-### Deploy the Web App
+### Docker Installation (Recommended)
+
+1. **Using Docker Compose**
+   ```bash
+   git clone https://github.com/networknest/homeassistant-integration.git
+   cd networknest
+   docker-compose up -d
+   ```
+   Access at: http://localhost:3000
+
+2. **Using Docker**
+   ```bash
+   docker build -t networknest .
+   docker run -p 3000:80 networknest
+   ```
+
+3. **Home Assistant Add-on**
+   - Add this repository to your Home Assistant add-ons: `https://github.com/networknest/homeassistant-integration`
+   - Install the NetworkNest add-on
+   - Configure and start the add-on
+
+### Deploy the Web App (Manual)
 
 1. **Clone this repository**
    ```bash
