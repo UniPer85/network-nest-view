@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { NetworkHeader } from "@/components/NetworkHeader";
+import { NetworkDashboard } from "@/components/NetworkDashboard";
 import { DeviceGrid } from "@/components/DeviceGrid";
 import { BandwidthChart } from "@/components/BandwidthChart";
 import { NetworkStats } from "@/components/NetworkStats";
@@ -22,24 +23,33 @@ const Index = () => {
         </div>
         
         <div className="space-y-6">
-          {/* Network Statistics at the top, small on the right */}
+          {/* Top row: Network Dashboard (left) + Network Statistics (right top) */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">
-              {/* Empty space to push NetworkStats to the right */}
+              <NetworkDashboard />
             </div>
             <div>
               <NetworkStats />
             </div>
           </div>
           
-          {/* Bandwidth Usage and Connected Devices with Alert Panel */}
+          {/* Middle: Bandwidth Usage (left) + Alert Panel (right, below Network Stats) */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2">
               <BandwidthChart />
-              <DeviceGrid />
             </div>
             <div>
               <AlertPanel />
+            </div>
+          </div>
+          
+          {/* Bottom: Connected Devices (left, spans 2/3) */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <DeviceGrid />
+            </div>
+            <div>
+              {/* Empty space to maintain alignment */}
             </div>
           </div>
         </div>
