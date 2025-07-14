@@ -22,35 +22,18 @@ const Index = () => {
           </Link>
         </div>
         
-        <div className="space-y-6">
-          {/* Top row: Network Dashboard (left) + Network Statistics (right top) */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
-              <NetworkDashboard />
-            </div>
-            <div>
-              <NetworkStats />
-            </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
+          {/* Left column: All main components stacked */}
+          <div className="lg:col-span-2 space-y-6">
+            <NetworkDashboard />
+            <BandwidthChart />
+            <DeviceGrid />
           </div>
           
-          {/* Middle: Bandwidth Usage (left) + Alert Panel (right, below Network Stats) */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
-              <BandwidthChart />
-            </div>
-            <div>
-              <AlertPanel />
-            </div>
-          </div>
-          
-          {/* Bottom: Connected Devices (left, spans 2/3) */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
-              <DeviceGrid />
-            </div>
-            <div>
-              {/* Empty space to maintain alignment */}
-            </div>
+          {/* Right column: Statistics and Alerts stacked */}
+          <div className="space-y-6">
+            <NetworkStats />
+            <AlertPanel />
           </div>
         </div>
       </div>
