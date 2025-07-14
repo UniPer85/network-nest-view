@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { 
@@ -8,6 +9,7 @@ import {
   HardDrive3D, 
   Zap3D 
 } from "@/components/icons/NetworkIcons3D";
+import { MonitoringHistoryDialog } from "./MonitoringHistoryDialog";
 
 const stats = [
   {
@@ -41,6 +43,22 @@ const stats = [
 ];
 
 export const NetworkStats = () => {
+  const [selectedStat, setSelectedStat] = useState<{
+    type: 'service';
+    id: string;
+    name: string;
+    status: string;
+  } | null>(null);
+
+  const handleStatClick = (stat: typeof stats[0]) => {
+    setSelectedStat({
+      type: 'service',
+      id: stat.title.toLowerCase().replace(/\s+/g, '_'),
+      name: stat.title,
+      status: 'active'
+    });
+  };
+
   return (
     <Card className="bg-gradient-card border-border shadow-card">
       <div className="p-6">
@@ -54,8 +72,9 @@ export const NetworkStats = () => {
             return (
               <div 
                 key={stat.title}
-                className="flex items-center space-x-4 animate-fade-in"
+                className="flex items-center space-x-4 animate-fade-in cursor-pointer p-2 rounded-lg hover:bg-muted/20 transition-colors"
                 style={{ animationDelay: `${index * 100}ms` }}
+                onClick={() => handleStatClick(stat)}
               >
                 <div className="flex items-center justify-center">
                   <Icon size={32} color={stat.color} />
@@ -102,6 +121,17 @@ export const NetworkStats = () => {
           </div>
         </div>
       </div>
+      
+      {selectedStat && (
+        <MonitoringHistoryDialog
+          open={!!selectedStat}
+          onOpenChange={() => setSelectedStat(null)}
+          itemType={selectedStat.type}
+          itemId={selectedStat.id}
+          itemName={selectedStat.name}
+          currentStatus={selectedStat.status}
+        />
+      )}
     </Card>
   );
 };

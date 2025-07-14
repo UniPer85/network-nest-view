@@ -244,11 +244,69 @@ export type Database = {
         }
         Relationships: []
       }
+      monitoring_history: {
+        Row: {
+          additional_metrics: Json | null
+          bandwidth_down: number | null
+          bandwidth_up: number | null
+          cpu_usage: number | null
+          created_at: string
+          id: string
+          item_id: string
+          item_name: string
+          item_type: string
+          memory_usage: number | null
+          recorded_at: string
+          response_time: number | null
+          status: string
+          storage_usage: number | null
+          user_id: string
+        }
+        Insert: {
+          additional_metrics?: Json | null
+          bandwidth_down?: number | null
+          bandwidth_up?: number | null
+          cpu_usage?: number | null
+          created_at?: string
+          id?: string
+          item_id: string
+          item_name: string
+          item_type: string
+          memory_usage?: number | null
+          recorded_at?: string
+          response_time?: number | null
+          status: string
+          storage_usage?: number | null
+          user_id: string
+        }
+        Update: {
+          additional_metrics?: Json | null
+          bandwidth_down?: number | null
+          bandwidth_up?: number | null
+          cpu_usage?: number | null
+          created_at?: string
+          id?: string
+          item_id?: string
+          item_name?: string
+          item_type?: string
+          memory_usage?: number | null
+          recorded_at?: string
+          response_time?: number | null
+          status?: string
+          storage_usage?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      cleanup_old_monitoring_data: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       generate_ha_api_key: {
         Args: Record<PropertyKey, never>
         Returns: string

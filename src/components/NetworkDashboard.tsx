@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -6,6 +7,7 @@ import {
   Shield3D,
   Zap3D
 } from "@/components/icons/NetworkIcons3D";
+import { MonitoringHistoryDialog } from "./MonitoringHistoryDialog";
 
 // Detailed dashboard items
 const dashboardItems = [
@@ -36,6 +38,22 @@ const dashboardItems = [
 ];
 
 export const NetworkDashboard = () => {
+  const [selectedItem, setSelectedItem] = useState<{
+    type: 'component';
+    id: string;
+    name: string;
+    status: string;
+  } | null>(null);
+
+  const handleItemClick = (item: typeof dashboardItems[0]) => {
+    setSelectedItem({
+      type: 'component',
+      id: item.title.toLowerCase().replace(/\s+/g, '_'),
+      name: item.title,
+      status: item.value
+    });
+  };
+
   return (
     <Card className="bg-gradient-card border-border shadow-card">
       <div className="p-6">
@@ -54,8 +72,9 @@ export const NetworkDashboard = () => {
             return (
               <div
                 key={item.title}
-                className="flex items-center space-x-4 p-6 rounded-lg bg-muted/20 hover:bg-muted/30 transition-colors animate-fade-in"
+                className="flex items-center space-x-4 p-6 rounded-lg bg-muted/20 hover:bg-muted/30 transition-colors animate-fade-in cursor-pointer transform hover:scale-105"
                 style={{ animationDelay: `${index * 100}ms` }}
+                onClick={() => handleItemClick(item)}
               >
                 <div className="flex items-center justify-center">
                   <Icon 
@@ -82,6 +101,17 @@ export const NetworkDashboard = () => {
           })}
         </div>
       </div>
+      
+      {selectedItem && (
+        <MonitoringHistoryDialog
+          open={!!selectedItem}
+          onOpenChange={() => setSelectedItem(null)}
+          itemType={selectedItem.type}
+          itemId={selectedItem.id}
+          itemName={selectedItem.name}
+          currentStatus={selectedItem.status}
+        />
+      )}
     </Card>
   );
 };

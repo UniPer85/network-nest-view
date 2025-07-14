@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -10,6 +11,7 @@ import {
   Speaker3D,
   Camera3D
 } from "@/components/icons/NetworkIcons3D";
+import { MonitoringHistoryDialog } from "./MonitoringHistoryDialog";
 
 interface Device {
   id: string;
@@ -110,6 +112,22 @@ const getStatusColor = (status: string) => {
 };
 
 export const DeviceGrid = () => {
+  const [selectedDevice, setSelectedDevice] = useState<{
+    type: 'device';
+    id: string;
+    name: string;
+    status: string;
+  } | null>(null);
+
+  const handleDeviceClick = (device: Device) => {
+    setSelectedDevice({
+      type: 'device',
+      id: device.id,
+      name: device.name,
+      status: device.status
+    });
+  };
+
   return (
     <Card className="bg-gradient-card border-border shadow-card">
       <div className="p-6">
@@ -128,8 +146,9 @@ export const DeviceGrid = () => {
             return (
               <div
                 key={device.id}
-                className="flex items-center space-x-4 p-4 rounded-lg bg-muted/20 hover:bg-muted/30 transition-colors animate-fade-in"
+                className="flex items-center space-x-4 p-4 rounded-lg bg-muted/20 hover:bg-muted/30 transition-colors animate-fade-in cursor-pointer transform hover:scale-105"
                 style={{ animationDelay: `${index * 100}ms` }}
+                onClick={() => handleDeviceClick(device)}
               >
                 <div className="flex items-center justify-center">
                   <Icon 
@@ -165,6 +184,17 @@ export const DeviceGrid = () => {
           })}
         </div>
       </div>
+      
+      {selectedDevice && (
+        <MonitoringHistoryDialog
+          open={!!selectedDevice}
+          onOpenChange={() => setSelectedDevice(null)}
+          itemType={selectedDevice.type}
+          itemId={selectedDevice.id}
+          itemName={selectedDevice.name}
+          currentStatus={selectedDevice.status}
+        />
+      )}
     </Card>
   );
 };
