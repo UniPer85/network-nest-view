@@ -2,14 +2,10 @@ class NetworkNestBandwidthCard extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
-    this.chart = null;
   }
 
   setConfig(config) {
-    if (!config.download_entity || !config.upload_entity) {
-      throw new Error('Please define both download_entity and upload_entity');
-    }
-    this.config = config;
+    this.config = config || {};
   }
 
   set hass(hass) {
@@ -18,29 +14,24 @@ class NetworkNestBandwidthCard extends HTMLElement {
   }
 
   render() {
-    if (!this._hass || !this.config) return;
+    if (!this._hass) return;
 
-    const downloadEntity = this._hass.states[this.config.download_entity];
-    const uploadEntity = this._hass.states[this.config.upload_entity];
-    
-    if (!downloadEntity || !uploadEntity) {
-      this.shadowRoot.innerHTML = `
-        <ha-card>
-          <div class="card-content">
-            <div class="error">Entities not found</div>
-          </div>
-        </ha-card>
-      `;
-      return;
-    }
+    // Find bandwidth-related entities
+    const entities = Object.keys(this._hass.states).filter(entityId => 
+      entityId.startsWith('sensor.networknest_') && 
+      (entityId.includes('bandwidth') || entityId.includes('speed'))
+    );
 
-    const downloadSpeed = parseFloat(downloadEntity.state) || 0;
-    const uploadSpeed = parseFloat(uploadEntity.state) || 0;
-    const totalSpeed = downloadSpeed + uploadSpeed;
-    
-    const maxSpeed = this.config.max_speed || 1000; // Default 1 Gbps
-    const downloadPercent = (downloadSpeed / maxSpeed) * 100;
-    const uploadPercent = (uploadSpeed / maxSpeed) * 100;
+    const uploadEntity = entities.find(e => e.includes('upload')) || entities[0];
+    const downloadEntity = entities.find(e => e.includes('download')) || entities[1];
+    const totalEntity = entities.find(e => e.includes('total')) || entities[2];
+
+    const uploadSpeed = uploadEntity ? this._hass.states[uploadEntity]?.state : '0';
+    const downloadSpeed = downloadEntity ? this._hass.states[downloadEntity]?.state : '0';
+    const totalBandwidth = totalEntity ? this._hass.states[totalEntity]?.state : '0';
+
+    const uploadUnit = uploadEntity ? this._hass.states[uploadEntity]?.attributes?.unit_of_measurement || 'MB/s' : 'MB/s';
+    const downloadUnit = downloadEntity ? this._hass.states[downloadEntity]?.attributes?.unit_of_measurement || 'MB/s' : 'MB/s';
 
     this.shadowRoot.innerHTML = `
       <style>
@@ -51,185 +42,156 @@ class NetworkNestBandwidthCard extends HTMLElement {
           padding: 20px;
           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
           color: white;
-          border-radius: 12px;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        .bandwidth-header {
-          text-align: center;
-          margin-bottom: 24px;
-        }
-        .bandwidth-header h2 {
-          margin: 0 0 8px 0;
-          font-size: 24px;
-          font-weight: 600;
-        }
-        .total-speed {
-          font-size: 32px;
-          font-weight: 700;
-          margin: 8px 0;
-        }
-        .speed-unit {
-          font-size: 16px;
-          opacity: 0.8;
-        }
-        .bandwidth-bars {
-          margin: 24px 0;
-        }
-        .speed-row {
-          display: flex;
-          align-items: center;
-          margin-bottom: 16px;
-        }
-        .speed-icon {
-          width: 24px;
-          height: 24px;
-          margin-right: 12px;
-          font-size: 18px;
-        }
-        .speed-info {
-          flex: 1;
-          margin-right: 12px;
-        }
-        .speed-label {
-          font-size: 14px;
-          opacity: 0.9;
-          margin-bottom: 4px;
-        }
-        .speed-bar {
-          width: 100%;
-          height: 8px;
-          background: rgba(255,255,255,0.2);
-          border-radius: 4px;
-          overflow: hidden;
-        }
-        .speed-fill {
-          height: 100%;
-          transition: width 0.3s ease;
-          border-radius: 4px;
-        }
-        .download-fill {
-          background: linear-gradient(90deg, #4CAF50, #8BC34A);
-        }
-        .upload-fill {
-          background: linear-gradient(90deg, #FF9800, #FFC107);
-        }
-        .speed-value {
-          font-size: 16px;
-          font-weight: 600;
-          min-width: 80px;
-          text-align: right;
-        }
-        .chart-container {
-          height: 120px;
-          margin: 16px 0;
-          background: rgba(255,255,255,0.1);
-          border-radius: 8px;
+          border-radius: 16px;
+          box-shadow: 0 8px 24px rgba(0,0,0,0.12);
           position: relative;
           overflow: hidden;
         }
-        .error {
-          color: #ffcccb;
-          text-align: center;
+        .background-wave {
+          position: absolute;
+          top: -50%;
+          right: -20%;
+          width: 200px;
+          height: 200px;
+          background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M0,50 Q25,25 50,50 T100,50 V100 H0 Z" fill="rgba(255,255,255,0.1)"/></svg>') no-repeat center;
+          background-size: contain;
+          opacity: 0.3;
+          animation: wave 3s ease-in-out infinite alternate;
+        }
+        @keyframes wave {
+          0% { transform: translateY(0px); }
+          100% { transform: translateY(-10px); }
+        }
+        .header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 24px;
+          position: relative;
+          z-index: 2;
+        }
+        .title {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+        .bandwidth-icon {
+          width: 48px;
+          height: 48px;
+          background: rgba(255,255,255,0.2);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 24px;
+        }
+        .title-text h2 {
+          margin: 0;
+          font-size: 20px;
+          font-weight: 700;
+        }
+        .title-text p {
+          margin: 4px 0 0 0;
+          font-size: 14px;
+          opacity: 0.8;
+        }
+        .bandwidth-stats {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+          margin-bottom: 20px;
+          position: relative;
+          z-index: 2;
+        }
+        .speed-card {
+          background: rgba(255,255,255,0.1);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255,255,255,0.2);
+          border-radius: 12px;
           padding: 20px;
+          text-align: center;
+          transition: transform 0.2s ease, background 0.2s ease;
+        }
+        .speed-card:hover {
+          transform: translateY(-2px);
+          background: rgba(255,255,255,0.15);
+        }
+        .speed-icon {
+          font-size: 32px;
+          margin-bottom: 12px;
+          display: block;
+        }
+        .speed-value {
+          font-size: 24px;
+          font-weight: 700;
+          margin-bottom: 4px;
+          display: block;
+        }
+        .speed-label {
+          font-size: 14px;
+          opacity: 0.8;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        .total-bandwidth {
+          background: rgba(255,255,255,0.1);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255,255,255,0.2);
+          border-radius: 12px;
+          padding: 16px;
+          text-align: center;
+          position: relative;
+          z-index: 2;
+        }
+        .total-value {
+          font-size: 18px;
+          font-weight: 600;
+          margin-bottom: 4px;
+        }
+        .total-label {
+          font-size: 12px;
+          opacity: 0.8;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
         }
       </style>
       <ha-card>
-        <div class="bandwidth-header">
-          <h2>Network Bandwidth</h2>
-          <div class="total-speed">
-            ${totalSpeed.toFixed(1)} <span class="speed-unit">Mbps</span>
+        <div class="background-wave"></div>
+        
+        <div class="header">
+          <div class="title">
+            <div class="bandwidth-icon">⚡</div>
+            <div class="title-text">
+              <h2>Network Bandwidth</h2>
+              <p>Real-time Usage</p>
+            </div>
           </div>
         </div>
-        
-        <div class="bandwidth-bars">
-          <div class="speed-row">
-            <div class="speed-icon">⬇️</div>
-            <div class="speed-info">
-              <div class="speed-label">Download</div>
-              <div class="speed-bar">
-                <div class="speed-fill download-fill" style="width: ${Math.min(downloadPercent, 100)}%"></div>
-              </div>
-            </div>
-            <div class="speed-value">${downloadSpeed.toFixed(1)} Mbps</div>
+
+        <div class="bandwidth-stats">
+          <div class="speed-card">
+            <span class="speed-icon">⬇️</span>
+            <span class="speed-value">${downloadSpeed}</span>
+            <span class="speed-label">Download ${downloadUnit}</span>
           </div>
           
-          <div class="speed-row">
-            <div class="speed-icon">⬆️</div>
-            <div class="speed-info">
-              <div class="speed-label">Upload</div>
-              <div class="speed-bar">
-                <div class="speed-fill upload-fill" style="width: ${Math.min(uploadPercent, 100)}%"></div>
-              </div>
-            </div>
-            <div class="speed-value">${uploadSpeed.toFixed(1)} Mbps</div>
+          <div class="speed-card">
+            <span class="speed-icon">⬆️</span>
+            <span class="speed-value">${uploadSpeed}</span>
+            <span class="speed-label">Upload ${uploadUnit}</span>
           </div>
         </div>
-        
-        <div class="chart-container">
-          <canvas id="bandwidthChart" width="100%" height="120"></canvas>
+
+        <div class="total-bandwidth">
+          <div class="total-value">${totalBandwidth} MB/s</div>
+          <div class="total-label">Total Bandwidth</div>
         </div>
       </ha-card>
     `;
-    
-    this.initChart();
-  }
-
-  initChart() {
-    // Simple canvas-based chart for bandwidth history
-    const canvas = this.shadowRoot.querySelector('#bandwidthChart');
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width;
-    canvas.height = 120;
-    
-    // Generate sample data for demo
-    const dataPoints = 30;
-    const downloadData = [];
-    const uploadData = [];
-    
-    for (let i = 0; i < dataPoints; i++) {
-      downloadData.push(Math.random() * 100 + 20);
-      uploadData.push(Math.random() * 40 + 10);
-    }
-    
-    this.drawChart(ctx, canvas.width, canvas.height, downloadData, uploadData);
-  }
-
-  drawChart(ctx, width, height, downloadData, uploadData) {
-    ctx.clearRect(0, 0, width, height);
-    
-    const maxValue = Math.max(...downloadData, ...uploadData);
-    const stepX = width / (downloadData.length - 1);
-    
-    // Draw download line
-    ctx.strokeStyle = '#4CAF50';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    downloadData.forEach((value, index) => {
-      const x = index * stepX;
-      const y = height - (value / maxValue) * height;
-      if (index === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    });
-    ctx.stroke();
-    
-    // Draw upload line
-    ctx.strokeStyle = '#FF9800';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    uploadData.forEach((value, index) => {
-      const x = index * stepX;
-      const y = height - (value / maxValue) * height;
-      if (index === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    });
-    ctx.stroke();
   }
 
   getCardSize() {
-    return 4;
+    return 3;
   }
 
   static getConfigElement() {
@@ -237,67 +199,26 @@ class NetworkNestBandwidthCard extends HTMLElement {
   }
 
   static getStubConfig() {
-    return { 
-      download_entity: 'sensor.networknest_bandwidth_down',
-      upload_entity: 'sensor.networknest_bandwidth_up',
-      max_speed: 1000
-    };
+    return {};
   }
 }
 
-// Card Editor
+// Simple editor for the bandwidth card
 class NetworkNestBandwidthCardEditor extends HTMLElement {
   setConfig(config) {
-    this.config = config;
+    this.config = config || {};
     this.render();
   }
 
   render() {
     this.innerHTML = `
       <div style="padding: 16px;">
-        <div style="margin-bottom: 12px;">
-          <label for="download_entity">Download Entity:</label>
-          <input 
-            type="text" 
-            id="download_entity" 
-            value="${this.config?.download_entity || ''}"
-            placeholder="sensor.networknest_bandwidth_down"
-            style="width: 100%; padding: 8px; margin-top: 4px; border: 1px solid #ddd; border-radius: 4px;"
-          />
-        </div>
-        <div style="margin-bottom: 12px;">
-          <label for="upload_entity">Upload Entity:</label>
-          <input 
-            type="text" 
-            id="upload_entity" 
-            value="${this.config?.upload_entity || ''}"
-            placeholder="sensor.networknest_bandwidth_up"
-            style="width: 100%; padding: 8px; margin-top: 4px; border: 1px solid #ddd; border-radius: 4px;"
-          />
-        </div>
-        <div style="margin-bottom: 12px;">
-          <label for="max_speed">Max Speed (Mbps):</label>
-          <input 
-            type="number" 
-            id="max_speed" 
-            value="${this.config?.max_speed || 1000}"
-            placeholder="1000"
-            style="width: 100%; padding: 8px; margin-top: 4px; border: 1px solid #ddd; border-radius: 4px;"
-          />
-        </div>
+        <p style="margin: 0; color: #666; font-size: 14px;">
+          This card automatically detects NetworkNest bandwidth entities and displays real-time network usage.
+          No configuration required.
+        </p>
       </div>
     `;
-
-    ['download_entity', 'upload_entity', 'max_speed'].forEach(field => {
-      const input = this.querySelector(`#${field}`);
-      input.addEventListener('input', (e) => {
-        this.config = { 
-          ...this.config, 
-          [field]: field === 'max_speed' ? parseInt(e.target.value) : e.target.value 
-        };
-        this.dispatchEvent(new CustomEvent('config-changed', { detail: { config: this.config } }));
-      });
-    });
   }
 }
 
@@ -308,7 +229,7 @@ window.customCards = window.customCards || [];
 window.customCards.push({
   type: 'networknest-bandwidth-card',
   name: 'NetworkNest Bandwidth Card',
-  description: 'A custom card for displaying NetworkNest bandwidth usage with charts',
+  description: 'A real-time bandwidth monitoring card for NetworkNest',
   preview: false,
   documentationURL: 'https://github.com/your-repo/networknest'
 });
