@@ -2,6 +2,73 @@
 
 A modern, comprehensive network monitoring solution with Home Assistant integration, featuring real-time 3D visualizations and detailed analytics.
 
+## 📸 Screenshots
+
+### 🌐 Main Network Dashboard
+*Real-time 3D network visualization with live metrics*
+
+![Main Dashboard](./src/assets/screenshot-main-dashboard.png)
+
+**Key Features Shown:**
+- 🎯 **3D Network Topology** - Interactive 3D visualization of your network infrastructure
+- 📊 **Real-time Metrics** - Live bandwidth usage, connected devices, and network status
+- 🎨 **Modern UI** - Dark theme with glassmorphism effects and intuitive navigation
+- 📱 **Responsive Design** - Works seamlessly across all device sizes
+
+---
+
+### 🖥️ Device Monitoring Grid
+*Comprehensive device management and monitoring*
+
+![Device Monitoring](./src/assets/screenshot-device-monitoring.png)
+
+**Key Features Shown:**
+- 🔧 **Device Cards** - Visual representation of routers, switches, and access points
+- 📈 **Performance Metrics** - CPU, memory, and bandwidth usage for each device
+- 🟢 **Status Indicators** - Real-time health status with color-coded alerts
+- ⚙️ **Management Tools** - Quick access to device configuration and controls
+
+---
+
+### 📊 Analytics & History
+*Detailed monitoring history with interactive charts*
+
+![Analytics Dashboard](./src/assets/screenshot-analytics.png)
+
+**Key Features Shown:**
+- 📈 **Interactive Charts** - Bandwidth trends, device connections over time
+- 🔍 **Historical Data** - Comprehensive monitoring history and analytics
+- 📋 **Data Export** - Export monitoring data for external analysis
+- 🎛️ **Custom Timeframes** - Filter data by specific date ranges and intervals
+
+---
+
+### 🏠 Home Assistant Setup
+*Seamless integration with Home Assistant*
+
+![HA Integration Setup](./src/assets/screenshot-ha-setup.png)
+
+**Key Features Shown:**
+- 🔐 **Easy Configuration** - Simple API key and URL setup process
+- ✅ **Validation** - Real-time connection testing and validation
+- 📚 **Setup Guide** - Step-by-step instructions for quick configuration
+- 🔄 **Auto-Discovery** - Automatic device and sensor registration
+
+---
+
+### 🏡 Home Assistant Dashboard
+*NetworkNest sensors in your Home Assistant dashboard*
+
+![HA Dashboard](./src/assets/screenshot-ha-dashboard.png)
+
+**Key Features Shown:**
+- 📊 **Bandwidth Gauge** - Real-time network speed monitoring
+- 📱 **Device Counter** - Track connected devices on your network
+- 🌐 **Status Sensors** - Network connectivity and uptime monitoring
+- 🤖 **Automation Ready** - Use network data in your HA automations
+
+---
+
 ## 🌟 Features
 
 ### Web Dashboard
