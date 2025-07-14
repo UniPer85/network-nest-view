@@ -59,31 +59,39 @@ serve(async (req) => {
 
     if (req.method === 'POST') {
       // Create new Home Assistant configuration
+      console.log('POST request received')
       const body = await req.json()
+      console.log('Request body:', body)
       
       // Generate new API key
+      console.log('Generating API key...')
       const { data: apiKey, error: rpcError } = await supabaseClient.rpc('generate_ha_api_key')
+      console.log('API key generated:', apiKey)
       
       if (rpcError) {
+        console.error('RPC error:', rpcError)
         throw rpcError
       }
 
+      console.log('Inserting config into database...')
       const { data: config, error } = await supabaseClient
         .from('homeassistant_config')
         .insert({
           user_id: user.id,
           api_key: apiKey,
           ha_instance_name: body.ha_instance_name,
-          ha_instance_url: body.ha_instance_url,
-          enabled: body.enabled
+          ha_instance_url: body.ha_instance_url || null,
+          enabled: body.enabled ?? true
         })
         .select()
         .single()
 
       if (error) {
+        console.error('Database error:', error)
         throw error
       }
 
+      console.log('Config created successfully:', config)
       return new Response(
         JSON.stringify(config),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
