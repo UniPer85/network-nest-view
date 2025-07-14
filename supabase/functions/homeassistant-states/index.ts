@@ -61,53 +61,18 @@ serve(async (req) => {
     // Generate current network data
     const networkData = generateNetworkData(config.user_id)
     
-    // Return Home Assistant compatible state data
-    const states = [
-      {
-        entity_id: `sensor.networknest_bandwidth_${config.user_id}`,
-        state: networkData.bandwidth.toString(),
-        attributes: {
-          unit_of_measurement: "Mbps",
-          device_class: "data_rate",
-          friendly_name: "Network Bandwidth",
-          icon: "mdi:speedometer",
-          last_updated: networkData.last_updated
-        }
-      },
-      {
-        entity_id: `sensor.networknest_connected_devices_${config.user_id}`,
-        state: networkData.connected_devices.toString(),
-        attributes: {
-          friendly_name: "Connected Devices",
-          icon: "mdi:devices",
-          last_updated: networkData.last_updated
-        }
-      },
-      {
-        entity_id: `binary_sensor.networknest_network_status_${config.user_id}`,
-        state: networkData.network_status === "online" ? "on" : "off",
-        attributes: {
-          device_class: "connectivity",
-          friendly_name: "Network Status",
-          icon: "mdi:network",
-          last_updated: networkData.last_updated
-        }
-      },
-      {
-        entity_id: `sensor.networknest_uptime_${config.user_id}`,
-        state: networkData.uptime.toString(),
-        attributes: {
-          unit_of_measurement: "h",
-          device_class: "duration",
-          friendly_name: "Network Uptime",
-          icon: "mdi:clock-outline",
-          last_updated: networkData.last_updated
-        }
-      }
-    ]
+    // Return simplified data format for Home Assistant REST sensor
+    const response = {
+      bandwidth_down: networkData.bandwidth * 0.8, // Simulate download speed
+      bandwidth_up: networkData.bandwidth * 0.2,   // Simulate upload speed
+      connected_devices: networkData.connected_devices,
+      status: networkData.network_status,
+      uptime_hours: networkData.uptime,
+      last_updated: networkData.last_updated
+    }
 
     return new Response(
-      JSON.stringify(states),
+      JSON.stringify(response),
       { 
         headers: { 
           ...corsHeaders, 

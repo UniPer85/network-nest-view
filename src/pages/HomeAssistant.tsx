@@ -348,44 +348,69 @@ const HomeAssistant = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>Home Assistant Setup</CardTitle>
+              <CardTitle>Home Assistant Setup Instructions</CardTitle>
               <CardDescription>
-                Add this configuration to your Home Assistant
+                Follow these steps to integrate NetworkNest with your Home Assistant instance
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Alert>
                 <CheckCircle className="h-4 w-4" />
                 <AlertDescription>
-                  <div className="space-y-2">
-                    <p>Add the following to your <code>configuration.yaml</code>:</p>
-                    <pre className="bg-muted p-3 rounded text-sm overflow-x-auto">
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="font-semibold mb-2">📋 Setup Steps:</h4>
+                      <ol className="list-decimal list-inside space-y-2 text-sm">
+                        <li>Copy the API key above</li>
+                        <li>Add the configuration below to your Home Assistant <code>configuration.yaml</code></li>
+                        <li>Restart Home Assistant</li>
+                        <li>The NetworkNest sensors will appear in your Home Assistant</li>
+                      </ol>
+                    </div>
+                    
+                    <div>
+                      <h4 className="font-semibold mb-2">🔗 Connection Method:</h4>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Your Home Assistant connects to NetworkNest using the API key (not the other way around). 
+                        This works with both local Home Assistant installations and Home Assistant Cloud.
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <h4 className="font-semibold mb-2">📄 Configuration:</h4>
+                      <pre className="bg-muted p-3 rounded text-sm overflow-x-auto">
 {`# NetworkNest Integration
 rest:
-  - resource: ${baseUrl}/functions/v1/homeassistant-states
+  - resource: https://jwqmtmapnvncrwixouek.supabase.co/functions/v1/homeassistant-states
     headers:
       x-api-key: "${config.api_key}"
     scan_interval: 30
     sensor:
-      - name: "Network Bandwidth"
-        value_template: "{{ value_json[0].state }}"
+      - name: "NetworkNest Bandwidth Down"
+        value_template: "{{ value_json.bandwidth_down | default(0) }}"
         unit_of_measurement: "Mbps"
         device_class: data_rate
-        icon: mdi:speedometer
-      - name: "Connected Devices"
-        value_template: "{{ value_json[1].state }}"
+        icon: mdi:download
+      - name: "NetworkNest Bandwidth Up"
+        value_template: "{{ value_json.bandwidth_up | default(0) }}"
+        unit_of_measurement: "Mbps"
+        device_class: data_rate
+        icon: mdi:upload
+      - name: "NetworkNest Connected Devices"
+        value_template: "{{ value_json.connected_devices | default(0) }}"
         icon: mdi:devices
-      - name: "Network Uptime"
-        value_template: "{{ value_json[3].state }}"
+      - name: "NetworkNest Network Uptime"
+        value_template: "{{ value_json.uptime_hours | default(0) }}"
         unit_of_measurement: "h"
         device_class: duration
         icon: mdi:clock-outline
     binary_sensor:
-      - name: "Network Status"
-        value_template: "{{ value_json[2].state }}"
+      - name: "NetworkNest Status"
+        value_template: "{{ value_json.status == 'online' }}"
         device_class: connectivity
         icon: mdi:network`}
-                    </pre>
+                      </pre>
+                    </div>
                   </div>
                 </AlertDescription>
               </Alert>
