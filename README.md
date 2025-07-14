@@ -19,6 +19,7 @@ A modern, comprehensive network monitoring solution with Home Assistant integrat
 - **Device Discovery**: Automatic device registration in Home Assistant
 - **Automation Ready**: Use network data in your Home Assistant automations
 - **Dashboard Cards**: Pre-built cards for Home Assistant dashboards
+- **Custom Lovelace Cards**: Beautiful custom cards for network visualization
 
 ### Technical Features
 - **Supabase Backend**: Scalable database with real-time updates

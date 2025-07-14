@@ -1,13 +1,19 @@
 # NetworkNest Home Assistant Integration
 
-This integration allows you to monitor your network statistics from NetworkNest directly in Home Assistant.
+This integration allows you to monitor your network statistics from NetworkNest directly in Home Assistant, including custom Lovelace cards for beautiful visualizations.
 
 ## Features
 
+### Integration Features
 - **Network Bandwidth Monitoring** - Real-time bandwidth usage
 - **Connected Devices Count** - Number of devices on your network
 - **Network Status** - Online/offline connectivity status
 - **Network Uptime** - How long your network has been running
+
+### Custom Lovelace Cards
+- **Device Card** - Display individual network device information
+- **Bandwidth Card** - Visual bandwidth usage with charts
+- **Overview Card** - Comprehensive network status dashboard
 
 ## Installation Methods
 
@@ -167,6 +173,61 @@ For support and issues:
 - Verify your NetworkNest instance is accessible
 - Ensure your API key is valid and active
 
+## Custom Lovelace Cards
+
+NetworkNest includes beautiful custom cards for your Home Assistant dashboard:
+
+### Available Cards
+
+#### 1. NetworkNest Device Card
+Displays individual network device information with status, bandwidth usage, and device details.
+
+```yaml
+type: custom:networknest-device-card
+entity: sensor.networknest_device_macbook_pro
+```
+
+#### 2. NetworkNest Bandwidth Card
+Shows network bandwidth usage with visual bars and historical charts.
+
+```yaml
+type: custom:networknest-bandwidth-card
+download_entity: sensor.networknest_bandwidth_down
+upload_entity: sensor.networknest_bandwidth_up
+max_speed: 1000
+```
+
+#### 3. NetworkNest Overview Card
+Comprehensive network overview with key metrics and status.
+
+```yaml
+type: custom:networknest-overview-card
+```
+
+### Installing Custom Cards
+
+1. **Copy card files** to your Home Assistant `www` directory:
+   ```
+   /config/www/networknest/
+   ├── networknest-device-card.js
+   ├── networknest-bandwidth-card.js
+   └── networknest-overview-card.js
+   ```
+
+2. **Add resources** to your Lovelace configuration:
+   ```yaml
+   lovelace:
+     resources:
+       - url: /local/networknest/networknest-device-card.js
+         type: module
+       - url: /local/networknest/networknest-bandwidth-card.js
+         type: module
+       - url: /local/networknest/networknest-overview-card.js
+         type: module
+   ```
+
+3. **Restart Home Assistant** and add the cards to your dashboard
+
 ## Automation Examples
 
 ### Network Alert
@@ -180,7 +241,7 @@ automation:
     action:
       service: notify.mobile_app_your_phone
       data:
-        message: "Network is down!"
+        message: "🚨 Network is down!"
 ```
 
 ### Bandwidth Monitor
@@ -194,5 +255,21 @@ automation:
     action:
       service: notify.mobile_app_your_phone
       data:
-        message: "High bandwidth usage: {{ states('sensor.network_bandwidth') }} Mbps"
+        message: "⚠️ High bandwidth usage: {{ states('sensor.network_bandwidth') }} Mbps"
+```
+
+### Device Offline Alert
+```yaml
+automation:
+  - alias: "Device Offline Alert"
+    trigger:
+      platform: state
+      entity_id: sensor.networknest_device_macbook_pro
+      to: 'offline'
+      for:
+        minutes: 5
+    action:
+      service: notify.mobile_app_your_phone
+      data:
+        message: "📱 {{ trigger.to_state.attributes.friendly_name }} has been offline for 5 minutes"
 ```
