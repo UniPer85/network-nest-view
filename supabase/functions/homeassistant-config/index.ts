@@ -8,12 +8,16 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
+  console.log('Function called with method:', req.method)
+  
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
+    console.log('Handling OPTIONS request')
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
+    console.log('Processing request...')
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
@@ -58,16 +62,22 @@ serve(async (req) => {
     }
 
     if (req.method === 'POST') {
+      console.log('Processing POST request')
       // Create new Home Assistant configuration
       const body = await req.json()
+      console.log('Request body:', body)
       
       // Generate new API key
+      console.log('Generating API key...')
       const { data: apiKey, error: rpcError } = await supabaseClient.rpc('generate_ha_api_key')
+      console.log('API key generation result:', { apiKey, rpcError })
       
       if (rpcError) {
+        console.error('RPC error:', rpcError)
         throw rpcError
       }
 
+      console.log('Inserting config into database...')
       const { data: config, error } = await supabaseClient
         .from('homeassistant_config')
         .insert({
@@ -80,7 +90,10 @@ serve(async (req) => {
         .select()
         .single()
 
+      console.log('Database insert result:', { config, error })
+
       if (error) {
+        console.error('Database error:', error)
         throw error
       }
 
