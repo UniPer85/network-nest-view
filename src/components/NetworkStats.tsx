@@ -1,42 +1,42 @@
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { 
-  Download, 
-  Upload, 
-  Users, 
-  Clock, 
-  HardDrive, 
-  Zap 
-} from "lucide-react";
+  Download3D, 
+  Upload3D, 
+  Users3D, 
+  Clock3D, 
+  HardDrive3D, 
+  Zap3D 
+} from "@/components/icons/NetworkIcons3D";
 
 const stats = [
   {
     title: "Total Downloaded",
     value: "2.4 TB",
     change: "+12%",
-    icon: Download,
-    color: "text-primary"
+    icon: Download3D,
+    color: "hsl(var(--primary))"
   },
   {
     title: "Total Uploaded", 
     value: "847 GB",
     change: "+8%",
-    icon: Upload,
-    color: "text-accent"
+    icon: Upload3D,
+    color: "hsl(var(--accent))"
   },
   {
     title: "Active Users",
     value: "6",
     change: "0%",
-    icon: Users,
-    color: "text-success"
+    icon: Users3D,
+    color: "hsl(var(--success))"
   },
   {
     title: "Uptime",
     value: "99.9%",
     change: "+0.1%",
-    icon: Clock,
-    color: "text-primary"
+    icon: Clock3D,
+    color: "hsl(var(--primary))"
   }
 ];
 
@@ -57,8 +57,8 @@ export const NetworkStats = () => {
                 className="flex items-center space-x-4 animate-fade-in"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className="p-2 rounded-full bg-muted/30">
-                  <Icon className={`w-5 h-5 ${stat.color}`} />
+                <div className="flex items-center justify-center">
+                  <Icon size={32} color={stat.color} />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-1">

@@ -1,15 +1,15 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
-  Laptop, 
-  Smartphone, 
-  Tv, 
-  Gamepad, 
-  Router, 
-  Tablet,
-  Speaker,
-  Camera
-} from "lucide-react";
+  Laptop3D, 
+  Smartphone3D, 
+  Tv3D, 
+  Gamepad3D, 
+  Router3D, 
+  Tablet3D,
+  Speaker3D,
+  Camera3D
+} from "@/components/icons/NetworkIcons3D";
 
 interface Device {
   id: string;
@@ -18,7 +18,7 @@ interface Device {
   ip: string;
   status: 'online' | 'offline' | 'idle';
   bandwidth: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: React.ComponentType<{ size?: number; className?: string; color?: string }>;
 }
 
 const devices: Device[] = [
@@ -29,7 +29,7 @@ const devices: Device[] = [
     ip: '192.168.1.101',
     status: 'online',
     bandwidth: '45.2 MB/s',
-    icon: Laptop
+    icon: Laptop3D
   },
   {
     id: '2',
@@ -38,7 +38,7 @@ const devices: Device[] = [
     ip: '192.168.1.102',
     status: 'online',
     bandwidth: '12.8 MB/s',
-    icon: Smartphone
+    icon: Smartphone3D
   },
   {
     id: '3',
@@ -47,7 +47,7 @@ const devices: Device[] = [
     ip: '192.168.1.103',
     status: 'idle',
     bandwidth: '2.1 MB/s',
-    icon: Tv
+    icon: Tv3D
   },
   {
     id: '4',
@@ -56,7 +56,7 @@ const devices: Device[] = [
     ip: '192.168.1.104',
     status: 'online',
     bandwidth: '78.5 MB/s',
-    icon: Gamepad
+    icon: Gamepad3D
   },
   {
     id: '5',
@@ -65,7 +65,7 @@ const devices: Device[] = [
     ip: '192.168.1.1',
     status: 'online',
     bandwidth: '0.5 MB/s',
-    icon: Router
+    icon: Router3D
   },
   {
     id: '6',
@@ -74,7 +74,7 @@ const devices: Device[] = [
     ip: '192.168.1.105',
     status: 'offline',
     bandwidth: '0 MB/s',
-    icon: Tablet
+    icon: Tablet3D
   },
   {
     id: '7',
@@ -83,7 +83,7 @@ const devices: Device[] = [
     ip: '192.168.1.106',
     status: 'online',
     bandwidth: '1.2 MB/s',
-    icon: Speaker
+    icon: Speaker3D
   },
   {
     id: '8',
@@ -92,7 +92,7 @@ const devices: Device[] = [
     ip: '192.168.1.107',
     status: 'online',
     bandwidth: '5.8 MB/s',
-    icon: Camera
+    icon: Camera3D
   }
 ];
 
@@ -131,16 +131,15 @@ export const DeviceGrid = () => {
                 className="flex items-center space-x-4 p-4 rounded-lg bg-muted/20 hover:bg-muted/30 transition-colors animate-fade-in"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className={`p-3 rounded-full ${
-                  device.status === 'online' ? 'bg-success/20' :
-                  device.status === 'idle' ? 'bg-warning/20' :
-                  'bg-destructive/20'
-                }`}>
-                  <Icon className={`w-5 h-5 ${
-                    device.status === 'online' ? 'text-success' :
-                    device.status === 'idle' ? 'text-warning' :
-                    'text-destructive'
-                  }`} />
+                <div className="flex items-center justify-center">
+                  <Icon 
+                    size={40} 
+                    color={
+                      device.status === 'online' ? 'hsl(var(--success))' :
+                      device.status === 'idle' ? 'hsl(var(--warning))' :
+                      'hsl(var(--destructive))'
+                    }
+                  />
                 </div>
                 
                 <div className="flex-1 min-w-0">

@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Wifi, Shield, Activity, Globe } from "lucide-react";
+import { Wifi3D, Shield3D, Activity3D, Globe3D } from "@/components/icons/NetworkIcons3D";
 
 export const NetworkHeader = () => {
   return (
@@ -25,8 +25,8 @@ export const NetworkHeader = () => {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="flex items-center space-x-3 p-3 rounded-lg bg-muted/30">
-            <div className="p-2 rounded-full bg-primary/20">
-              <Wifi className="w-5 h-5 text-primary" />
+            <div className="flex items-center justify-center">
+              <Wifi3D size={32} color="hsl(var(--primary))" />
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Connection</p>
@@ -35,8 +35,8 @@ export const NetworkHeader = () => {
           </div>
 
           <div className="flex items-center space-x-3 p-3 rounded-lg bg-muted/30">
-            <div className="p-2 rounded-full bg-success/20">
-              <Shield className="w-5 h-5 text-success" />
+            <div className="flex items-center justify-center">
+              <Shield3D size={32} color="hsl(var(--success))" />
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Security</p>
@@ -45,8 +45,8 @@ export const NetworkHeader = () => {
           </div>
 
           <div className="flex items-center space-x-3 p-3 rounded-lg bg-muted/30">
-            <div className="p-2 rounded-full bg-accent/20">
-              <Activity className="w-5 h-5 text-accent" />
+            <div className="flex items-center justify-center">
+              <Activity3D size={32} color="hsl(var(--accent))" />
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Speed</p>
@@ -55,8 +55,8 @@ export const NetworkHeader = () => {
           </div>
 
           <div className="flex items-center space-x-3 p-3 rounded-lg bg-muted/30">
-            <div className="p-2 rounded-full bg-primary/20">
-              <Globe className="w-5 h-5 text-primary" />
+            <div className="flex items-center justify-center">
+              <Globe3D size={32} color="hsl(var(--primary))" />
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Public IP</p>

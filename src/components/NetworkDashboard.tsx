@@ -1,11 +1,11 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
-  Activity,
-  Wifi,
-  Shield,
-  Zap
-} from "lucide-react";
+  Activity3D,
+  Wifi3D,
+  Shield3D,
+  Zap3D
+} from "@/components/icons/NetworkIcons3D";
 
 // Detailed dashboard items
 const dashboardItems = [
@@ -13,25 +13,25 @@ const dashboardItems = [
     title: "Network Status",
     value: "Online",
     status: "success",
-    icon: Wifi
+    icon: Wifi3D
   },
   {
     title: "Security Level",
     value: "High",
     status: "success", 
-    icon: Shield
+    icon: Shield3D
   },  
   {
     title: "Active Connections",
     value: "24",
     status: "normal",
-    icon: Activity
+    icon: Activity3D
   },
   {
     title: "Performance",
     value: "Excellent",
     status: "success",
-    icon: Zap
+    icon: Zap3D
   }
 ];
 
@@ -57,18 +57,16 @@ export const NetworkDashboard = () => {
                 className="flex items-center space-x-4 p-6 rounded-lg bg-muted/20 hover:bg-muted/30 transition-colors animate-fade-in"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className={`p-3 rounded-full ${
-                  item.status === 'success' ? 'bg-success/20' :
-                  item.status === 'warning' ? 'bg-warning/20' :
-                  item.status === 'error' ? 'bg-destructive/20' :
-                  'bg-muted/20'
-                }`}>
-                  <Icon className={`w-5 h-5 ${
-                    item.status === 'success' ? 'text-success' :
-                    item.status === 'warning' ? 'text-warning' :
-                    item.status === 'error' ? 'text-destructive' :
-                    'text-muted-foreground'
-                  }`} />
+                <div className="flex items-center justify-center">
+                  <Icon 
+                    size={40} 
+                    color={
+                      item.status === 'success' ? 'hsl(var(--success))' :
+                      item.status === 'warning' ? 'hsl(var(--warning))' :
+                      item.status === 'error' ? 'hsl(var(--destructive))' :
+                      'hsl(var(--muted-foreground))'
+                    }
+                  />
                 </div>
                 
                 <div>
