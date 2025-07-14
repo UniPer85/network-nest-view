@@ -63,44 +63,94 @@ serve(async (req) => {
 
     if (req.method === 'POST') {
       console.log('Processing POST request')
+      
       // Create new Home Assistant configuration
-      const body = await req.json()
-      console.log('Request body:', body)
+      let body;
+      try {
+        body = await req.json();
+        console.log('Request body:', body);
+      } catch (bodyError) {
+        console.error('Error parsing request body:', bodyError);
+        return new Response(
+          JSON.stringify({ error: 'Invalid request body', details: bodyError.message }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Validate required fields
+      if (!body.ha_instance_name) {
+        console.error('Missing required field: ha_instance_name');
+        return new Response(
+          JSON.stringify({ error: 'Missing required field: ha_instance_name' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
       
       // Generate new API key
-      console.log('Generating API key...')
-      const { data: apiKey, error: rpcError } = await supabaseClient.rpc('generate_ha_api_key')
-      console.log('API key generation result:', { apiKey, rpcError })
+      console.log('Generating API key...');
+      let apiKey;
+      try {
+        const { data, error: rpcError } = await supabaseClient.rpc('generate_ha_api_key');
+        console.log('API key generation result:', { data, error: rpcError });
+        
+        if (rpcError) {
+          console.error('RPC error:', rpcError);
+          throw rpcError;
+        }
+        
+        apiKey = data;
+        console.log('Generated API key:', apiKey);
+      } catch (rpcError) {
+        console.error('Failed to generate API key:', rpcError);
+        return new Response(
+          JSON.stringify({ error: 'Failed to generate API key', details: rpcError.message }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Insert config into database
+      console.log('Inserting config into database...');
+      console.log('User ID:', user.id);
+      console.log('Data to insert:', {
+        user_id: user.id,
+        api_key: apiKey,
+        ha_instance_name: body.ha_instance_name,
+        ha_instance_url: body.ha_instance_url || null,
+        enabled: body.enabled ?? true
+      });
       
-      if (rpcError) {
-        console.error('RPC error:', rpcError)
-        throw rpcError
+      try {
+        const { data: config, error } = await supabaseClient
+          .from('homeassistant_config')
+          .insert({
+            user_id: user.id,
+            api_key: apiKey,
+            ha_instance_name: body.ha_instance_name,
+            ha_instance_url: body.ha_instance_url || null,
+            enabled: body.enabled ?? true
+          })
+          .select()
+          .single();
+
+        console.log('Database insert result:', { config, error });
+
+        if (error) {
+          console.error('Database error:', error);
+          throw error;
+        }
+
+        console.log('Successfully created config:', config);
+        return new Response(
+          JSON.stringify(config),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      } catch (dbError) {
+        console.error('Database insertion failed:', dbError);
+        return new Response(
+          JSON.stringify({ error: 'Database insertion failed', details: dbError.message }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       }
-
-      console.log('Inserting config into database...')
-      const { data: config, error } = await supabaseClient
-        .from('homeassistant_config')
-        .insert({
-          user_id: user.id,
-          api_key: apiKey,
-          ha_instance_name: body.ha_instance_name,
-          ha_instance_url: body.ha_instance_url || null,
-          enabled: body.enabled ?? true
-        })
-        .select()
-        .single()
-
-      console.log('Database insert result:', { config, error })
-
-      if (error) {
-        console.error('Database error:', error)
-        throw error
-      }
-
-      return new Response(
-        JSON.stringify(config),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
     }
 
     if (req.method === 'PUT') {

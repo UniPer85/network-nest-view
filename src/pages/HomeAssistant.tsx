@@ -93,7 +93,9 @@ const HomeAssistant = () => {
       console.log('Response data:', response.data);
       console.log('Response error:', response.error);
 
+      // Check for function errors (non-2xx responses)
       if (response.error) {
+        console.error('Function error details:', response.error);
         throw response.error;
       }
 
@@ -116,7 +118,18 @@ const HomeAssistant = () => {
       console.error('Error message:', error?.message);
       console.error('Full error object:', error);
       
-      const errorMessage = error?.message || error?.toString() || 'Unknown error occurred';
+      // Try to extract more details from FunctionsHttpError
+      if (error?.context) {
+        console.error('Error context:', error.context);
+      }
+      
+      let errorMessage = 'Unknown error occurred';
+      if (error?.message) {
+        errorMessage = error.message;
+      } else if (error?.toString) {
+        errorMessage = error.toString();
+      }
+      
       toast({
         title: "Error",
         description: `Failed to save Home Assistant configuration: ${errorMessage}`,
