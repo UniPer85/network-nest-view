@@ -8,14 +8,35 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
-  console.log('Function called with method:', req.method)
+  console.log('=== Function called ===')
+  console.log('Method:', req.method)
+  console.log('URL:', req.url)
   
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
+    console.log('Handling OPTIONS request')
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
+    // Test response first
+    if (req.method === 'POST') {
+      console.log('=== POST request received ===')
+      
+      const body = await req.json()
+      console.log('Body received:', JSON.stringify(body))
+      
+      // Simple test response
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          message: 'Test response working',
+          received: body
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+    
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
@@ -63,46 +84,6 @@ serve(async (req) => {
 
       return new Response(
         JSON.stringify(config || null),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
-
-    if (req.method === 'POST') {
-      console.log('Handling POST request')
-      const body = await req.json()
-      console.log('Request body:', body)
-      
-      // Generate new API key
-      console.log('Generating API key...')
-      const { data: apiKey, error: rpcError } = await supabaseClient.rpc('generate_ha_api_key')
-      console.log('API key result:', apiKey, 'Error:', rpcError)
-      
-      if (rpcError) {
-        console.error('RPC error:', rpcError)
-        throw rpcError
-      }
-
-      console.log('Inserting config into database...')
-      const { data: config, error } = await supabaseClient
-        .from('homeassistant_config')
-        .insert({
-          user_id: user.id,
-          api_key: apiKey,
-          ha_instance_name: body.ha_instance_name,
-          ha_instance_url: body.ha_instance_url || null,
-          enabled: body.enabled ?? true
-        })
-        .select()
-        .single()
-
-      if (error) {
-        console.error('Database error:', error)
-        throw error
-      }
-
-      console.log('Config created successfully:', config)
-      return new Response(
-        JSON.stringify(config),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
@@ -158,9 +139,17 @@ serve(async (req) => {
     )
 
   } catch (error) {
-    console.error('Config error:', error)
+    console.error('=== Function error ===')
+    console.error('Error type:', error.constructor.name)
+    console.error('Error message:', error.message)
+    console.error('Error stack:', error.stack)
+    
     return new Response(
-      JSON.stringify({ error: 'Internal server error', details: error.message }),
+      JSON.stringify({ 
+        error: 'Internal server error', 
+        details: error.message,
+        type: error.constructor.name
+      }),
       { 
         status: 500, 
         headers: { 
