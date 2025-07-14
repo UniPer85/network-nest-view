@@ -12,8 +12,11 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-dark">
       <div className="container mx-auto p-6 space-y-6">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center mb-6">
           <NetworkHeader />
+        </div>
+        
+        <div className="flex justify-end mb-6">
           <Link to="/auth">
             <Button variant="outline" className="flex items-center gap-2">
               <Settings className="h-4 w-4" />
