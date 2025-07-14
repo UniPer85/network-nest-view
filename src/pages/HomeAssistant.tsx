@@ -80,7 +80,7 @@ const HomeAssistant = () => {
       const method = config ? 'PUT' : 'POST';
       console.log('Using method:', method);
       
-      const { data, error } = await supabase.functions.invoke('homeassistant-config', {
+      const response = await supabase.functions.invoke('homeassistant-config', {
         method,
         headers: {
           Authorization: `Bearer ${session.data.session?.access_token}`,
@@ -89,22 +89,37 @@ const HomeAssistant = () => {
         body: formData
       });
 
-      console.log('Response data:', data);
-      console.log('Response error:', error);
+      console.log('Full response:', response);
+      console.log('Response data:', response.data);
+      console.log('Response error:', response.error);
 
-      if (error) throw error;
+      if (response.error) {
+        throw response.error;
+      }
 
-      setConfig(data);
+      // Check if data exists and has the expected structure
+      if (!response.data) {
+        throw new Error('No data received from server');
+      }
+
+      const configData = response.data;
+      console.log('Config data to set:', configData);
+      
+      setConfig(configData);
       toast({
         title: "Success",
         description: `Home Assistant integration ${config ? 'updated' : 'created'} successfully`,
       });
     } catch (error) {
       console.error('Error saving config:', error);
-      console.error('Full error details:', JSON.stringify(error, null, 2));
+      console.error('Error type:', typeof error);
+      console.error('Error message:', error?.message);
+      console.error('Full error object:', error);
+      
+      const errorMessage = error?.message || error?.toString() || 'Unknown error occurred';
       toast({
         title: "Error",
-        description: "Failed to save Home Assistant configuration",
+        description: `Failed to save Home Assistant configuration: ${errorMessage}`,
         variant: "destructive",
       });
     } finally {
