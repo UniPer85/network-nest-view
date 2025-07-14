@@ -124,7 +124,7 @@ export const MonitoringHistoryDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
+          <DialogTitle className="flex items-center justify-between pr-10">
             <div className="flex items-center gap-3">
               <Activity className="h-6 w-6 text-primary" />
               <span>{itemName} - Monitoring History</span>
