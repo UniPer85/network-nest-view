@@ -1,1 +1,10 @@
 project_id = "jwqmtmapnvncrwixouek"
+
+[functions.homeassistant-config]
+verify_jwt = true
+
+[functions.homeassistant-discovery]
+verify_jwt = false
+
+[functions.homeassistant-states]
+verify_jwt = false

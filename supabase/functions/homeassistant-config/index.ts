@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -7,50 +8,146 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
-  console.log('=== FUNCTION CALLED ===')
-  console.log('Method:', req.method)
-  console.log('Headers:', Object.fromEntries(req.headers))
-  
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    console.log('OPTIONS request - returning CORS headers')
     return new Response('ok', { headers: corsHeaders })
   }
 
-  if (req.method === 'POST') {
-    console.log('POST request received')
-    try {
-      const body = await req.json()
-      console.log('Body:', body)
-      
-      return new Response(
-        JSON.stringify({ 
-          message: 'Test POST successful',
-          receivedData: body,
-          timestamp: new Date().toISOString()
-        }),
-        { 
-          status: 200,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      )
-    } catch (error) {
-      console.error('POST error:', error)
-      return new Response(
-        JSON.stringify({ error: error.message }),
-        { 
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      )
-    }
-  }
+  try {
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+    )
 
-  return new Response(
-    JSON.stringify({ message: 'Method not implemented yet' }),
-    { 
-      status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+    // Get user from JWT token
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Authorization required' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
-  )
+
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(
+      authHeader.replace('Bearer ', '')
+    )
+
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid authentication' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    if (req.method === 'GET') {
+      // Get existing Home Assistant configuration
+      const { data: config, error } = await supabaseClient
+        .from('homeassistant_config')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle()
+
+      if (error) {
+        throw error
+      }
+
+      return new Response(
+        JSON.stringify(config || null),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    if (req.method === 'POST') {
+      // Create new Home Assistant configuration
+      const body = await req.json()
+      
+      // Generate new API key
+      const { data: apiKey, error: rpcError } = await supabaseClient.rpc('generate_ha_api_key')
+      
+      if (rpcError) {
+        throw rpcError
+      }
+
+      const { data: config, error } = await supabaseClient
+        .from('homeassistant_config')
+        .insert({
+          user_id: user.id,
+          api_key: apiKey,
+          ha_instance_name: body.ha_instance_name,
+          ha_instance_url: body.ha_instance_url || null,
+          enabled: body.enabled ?? true
+        })
+        .select()
+        .single()
+
+      if (error) {
+        throw error
+      }
+
+      return new Response(
+        JSON.stringify(config),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    if (req.method === 'PUT') {
+      // Update Home Assistant configuration
+      const body = await req.json()
+      
+      const { data: config, error } = await supabaseClient
+        .from('homeassistant_config')
+        .update({
+          ha_instance_name: body.ha_instance_name,
+          ha_instance_url: body.ha_instance_url || null,
+          enabled: body.enabled
+        })
+        .eq('user_id', user.id)
+        .select()
+        .single()
+
+      if (error) {
+        throw error
+      }
+
+      return new Response(
+        JSON.stringify(config),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    if (req.method === 'DELETE') {
+      // Delete Home Assistant configuration
+      const { error } = await supabaseClient
+        .from('homeassistant_config')
+        .delete()
+        .eq('user_id', user.id)
+
+      if (error) {
+        throw error
+      }
+
+      return new Response(
+        JSON.stringify({ success: true }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    return new Response(
+      JSON.stringify({ error: 'Method not allowed' }),
+      { status: 405, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
+
+  } catch (error) {
+    console.error('Config error:', error)
+    return new Response(
+      JSON.stringify({ error: 'Internal server error' }),
+      { 
+        status: 500, 
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json' 
+        } 
+      }
+    )
+  }
 })
