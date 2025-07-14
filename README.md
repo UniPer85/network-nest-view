@@ -40,19 +40,19 @@ A modern, comprehensive network monitoring solution with Home Assistant integrat
    ```
    Access at: http://localhost:3000
 
-2. **Using Pre-built Docker Image**
+2. **Using Docker (Build & Run)**
    ```bash
-   docker run -p 3000:80 networknest/networknest:latest
-   ```
-   The image will automatically download from Docker Hub if not available locally.
-
-3. **Building from Source**
-   ```bash
+   # Clone the repository first
+   git clone https://github.com/YOUR_USERNAME/networknest.git
+   cd networknest
+   
+   # Build and run the container
    docker build -t networknest .
    docker run -p 3000:80 networknest
    ```
+   Access at: http://localhost:3000
 
-4. **Home Assistant Add-on**
+3. **Home Assistant Add-on**
    - Add this repository to your Home Assistant add-ons: `https://github.com/networknest/homeassistant-integration`
    - Install the NetworkNest add-on
    - Configure and start the add-on
