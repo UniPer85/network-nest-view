@@ -14,7 +14,96 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      monitored_devices: {
+        Row: {
+          api_key: string | null
+          created_at: string
+          device_type: Database["public"]["Enums"]["device_type"]
+          host: string
+          id: string
+          is_active: boolean | null
+          name: string
+          password: string | null
+          updated_at: string
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          api_key?: string | null
+          created_at?: string
+          device_type: Database["public"]["Enums"]["device_type"]
+          host: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          password?: string | null
+          updated_at?: string
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          api_key?: string | null
+          created_at?: string
+          device_type?: Database["public"]["Enums"]["device_type"]
+          host?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          password?: string | null
+          updated_at?: string
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
+      monitored_services: {
+        Row: {
+          check_interval: number | null
+          created_at: string
+          expected_response: string | null
+          host: string
+          id: string
+          is_active: boolean | null
+          name: string
+          path: string | null
+          port: number | null
+          service_type: Database["public"]["Enums"]["service_type"]
+          timeout: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          check_interval?: number | null
+          created_at?: string
+          expected_response?: string | null
+          host: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          path?: string | null
+          port?: number | null
+          service_type: Database["public"]["Enums"]["service_type"]
+          timeout?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          check_interval?: number | null
+          created_at?: string
+          expected_response?: string | null
+          host?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          path?: string | null
+          port?: number | null
+          service_type?: Database["public"]["Enums"]["service_type"]
+          timeout?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +112,23 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      device_type:
+        | "unifi_controller"
+        | "unifi_switch"
+        | "unifi_access_point"
+        | "unifi_gateway"
+        | "generic"
+      service_type:
+        | "http"
+        | "https"
+        | "tcp"
+        | "udp"
+        | "ping"
+        | "dns"
+        | "docker_server"
+        | "docker_container"
+        | "sql"
+        | "mqtt"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +255,26 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      device_type: [
+        "unifi_controller",
+        "unifi_switch",
+        "unifi_access_point",
+        "unifi_gateway",
+        "generic",
+      ],
+      service_type: [
+        "http",
+        "https",
+        "tcp",
+        "udp",
+        "ping",
+        "dns",
+        "docker_server",
+        "docker_container",
+        "sql",
+        "mqtt",
+      ],
+    },
   },
 } as const
