@@ -85,9 +85,17 @@ const Admin = () => {
   const [activeTab, setActiveTab] = useState<'devices' | 'services'>('devices');
   
   // Device form state
-  const [deviceForm, setDeviceForm] = useState({
+  const [deviceForm, setDeviceForm] = useState<{
+    name: string;
+    device_type: 'unifi_controller' | 'unifi_switch' | 'unifi_access_point' | 'unifi_gateway' | 'generic';
+    host: string;
+    username: string;
+    password: string;
+    api_key: string;
+    is_active: boolean;
+  }>({
     name: '',
-    device_type: 'generic' as const,
+    device_type: 'generic',
     host: '',
     username: '',
     password: '',
@@ -96,9 +104,19 @@ const Admin = () => {
   });
 
   // Service form state
-  const [serviceForm, setServiceForm] = useState({
+  const [serviceForm, setServiceForm] = useState<{
+    name: string;
+    service_type: 'http' | 'https' | 'ping' | 'tcp' | 'dns' | 'udp' | 'docker_server' | 'docker_container' | 'sql' | 'mqtt';
+    host: string;
+    port: string;
+    path: string;
+    expected_response: string;
+    timeout: string;
+    check_interval: string;
+    is_active: boolean;
+  }>({
     name: '',
-    service_type: 'http' as const,
+    service_type: 'http',
     host: '',
     port: '',
     path: '',
