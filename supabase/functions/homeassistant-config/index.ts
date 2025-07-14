@@ -25,23 +25,31 @@ serve(async (req) => {
 
     // Get user from JWT token
     const authHeader = req.headers.get('Authorization')
+    console.log('Auth header present:', !!authHeader)
+    
     if (!authHeader) {
+      console.log('No authorization header provided')
       return new Response(
         JSON.stringify({ error: 'Authorization required' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(
-      authHeader.replace('Bearer ', '')
-    )
+    const token = authHeader.replace('Bearer ', '')
+    console.log('Token extracted (first 20 chars):', token.substring(0, 20))
+    
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token)
+    console.log('Auth result:', { user: user?.id, error: authError })
 
     if (authError || !user) {
+      console.log('Authentication failed:', authError)
       return new Response(
-        JSON.stringify({ error: 'Invalid authentication' }),
+        JSON.stringify({ error: 'Invalid authentication', details: authError?.message }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
+
+    console.log('User authenticated successfully:', user.id)
 
     if (req.method === 'GET') {
       // Get existing Home Assistant configuration

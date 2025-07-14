@@ -75,10 +75,24 @@ const HomeAssistant = () => {
     try {
       const session = await supabase.auth.getSession();
       console.log('Session data:', session.data);
-      console.log('Form data:', formData);
+      console.log('Form data before sending:', formData);
+      
+      // Validate form data before sending
+      if (!formData.ha_instance_name || formData.ha_instance_name.trim() === '') {
+        throw new Error('Home Assistant Instance Name is required');
+      }
       
       const method = config ? 'PUT' : 'POST';
       console.log('Using method:', method);
+      
+      const requestBody = {
+        ha_instance_name: formData.ha_instance_name.trim(),
+        ha_instance_url: formData.ha_instance_url?.trim() || null,
+        enabled: formData.enabled
+      };
+      
+      console.log('Request body to send:', requestBody);
+      console.log('Request body JSON:', JSON.stringify(requestBody));
       
       const response = await supabase.functions.invoke('homeassistant-config', {
         method,
@@ -86,7 +100,7 @@ const HomeAssistant = () => {
           Authorization: `Bearer ${session.data.session?.access_token}`,
           'Content-Type': 'application/json'
         },
-        body: formData
+        body: requestBody
       });
 
       console.log('Full response:', response);
