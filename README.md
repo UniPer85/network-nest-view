@@ -34,7 +34,7 @@ A modern, comprehensive network monitoring solution with Home Assistant integrat
 
 1. **Using Docker Compose**
    ```bash
-   git clone https://github.com/networknest/homeassistant-integration.git
+   git clone https://github.com/UniPer85/networknest.git
    cd networknest
    docker-compose up -d
    ```
@@ -43,7 +43,7 @@ A modern, comprehensive network monitoring solution with Home Assistant integrat
 2. **Using Docker (Build & Run)**
    ```bash
    # Clone the repository first
-   git clone https://github.com/YOUR_USERNAME/networknest.git
+   git clone https://github.com/UniPer85/networknest.git
    cd networknest
    
    # Build and run the container
@@ -53,7 +53,7 @@ A modern, comprehensive network monitoring solution with Home Assistant integrat
    Access at: http://localhost:3000
 
 3. **Home Assistant Add-on**
-   - Add this repository to your Home Assistant add-ons: `https://github.com/networknest/homeassistant-integration`
+   - Add this repository to your Home Assistant add-ons: `https://github.com/UniPer85/networknest`
    - Install the NetworkNest add-on
    - Configure and start the add-on
 
@@ -61,7 +61,7 @@ A modern, comprehensive network monitoring solution with Home Assistant integrat
 
 1. **Clone this repository**
    ```bash
-   git clone https://github.com/YOUR_USERNAME/networknest.git
+   git clone https://github.com/UniPer85/networknest.git
    cd networknest
    ```
 
@@ -99,7 +99,7 @@ A modern, comprehensive network monitoring solution with Home Assistant integrat
 1. **Download Integration**:
    ```bash
    cd /config/custom_components/
-   git clone https://github.com/YOUR_USERNAME/networknest.git networknest
+   git clone https://github.com/UniPer85/networknest.git networknest
    ```
 
 2. **Restart Home Assistant**
@@ -243,9 +243,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🆘 Support
 
-- 📖 [Documentation](https://github.com/YOUR_USERNAME/networknest)
-- 🐛 [Report Issues](https://github.com/YOUR_USERNAME/networknest/issues)
-- 💬 [Discussions](https://github.com/YOUR_USERNAME/networknest/discussions)
+- 📖 [Documentation](https://github.com/UniPer85/networknest)
+- 🐛 [Report Issues](https://github.com/UniPer85/networknest/issues)
+- 💬 [Discussions](https://github.com/UniPer85/networknest/discussions)
 - 📧 [Email Support](mailto:support@networknest.dev)
 
 ## 🎯 Roadmap
