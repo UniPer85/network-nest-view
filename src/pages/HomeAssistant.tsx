@@ -94,10 +94,18 @@ const HomeAssistant = () => {
       console.log('Request body to send:', requestBody);
       console.log('Request body JSON:', JSON.stringify(requestBody));
       
+      // Get the access token
+      const accessToken = session.data.session?.access_token;
+      if (!accessToken) {
+        throw new Error('No access token available');
+      }
+      
+      console.log('Access token available:', !!accessToken);
+      
       const response = await supabase.functions.invoke('homeassistant-config', {
         method,
         headers: {
-          Authorization: `Bearer ${session.data.session?.access_token}`,
+          'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'application/json'
         },
         body: requestBody
@@ -110,6 +118,12 @@ const HomeAssistant = () => {
       // Check for function errors (non-2xx responses)
       if (response.error) {
         console.error('Function error details:', response.error);
+        
+        // Try to extract more details from the error response
+        if (response.error.context) {
+          console.error('Error context:', response.error.context);
+        }
+        
         throw response.error;
       }
 
