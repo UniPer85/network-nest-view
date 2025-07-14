@@ -7,10 +7,10 @@ from datetime import timedelta
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.components.frontend import add_extra_js_url
-from homeassistant.components.http import StaticPathConfig
+from homeassistant.exceptions import HomeAssistantError
 
 from .const import DOMAIN, UPDATE_INTERVAL
 from .api import NetworkNestAPI
@@ -31,6 +31,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     
     # Register frontend resources
     await _register_frontend_resources(hass)
+    
+    # Register services
+    await _register_services(hass)
     
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     
@@ -59,6 +62,61 @@ async def _register_frontend_resources(hass: HomeAssistant) -> None:
     for card in cards:
         add_extra_js_url(hass, f"/{DOMAIN}/{card}")
         _LOGGER.info("Registered NetworkNest card: %s", card)
+
+
+async def _register_services(hass: HomeAssistant) -> None:
+    """Register integration services."""
+    
+    async def refresh_data_service(call: ServiceCall) -> None:
+        """Handle refresh data service call."""
+        config_entry_id = call.data.get("config_entry_id")
+        
+        if config_entry_id:
+            # Refresh specific entry
+            if config_entry_id in hass.data[DOMAIN]:
+                coordinator = hass.data[DOMAIN][config_entry_id]
+                await coordinator.async_request_refresh()
+            else:
+                raise HomeAssistantError(f"Configuration entry {config_entry_id} not found")
+        else:
+            # Refresh all entries
+            for coordinator in hass.data[DOMAIN].values():
+                await coordinator.async_request_refresh()
+    
+    async def update_device_service(call: ServiceCall) -> None:
+        """Handle update device service call."""
+        device_id = call.data.get("device_id")
+        name = call.data.get("name")
+        device_type = call.data.get("device_type")
+        
+        if not device_id:
+            raise HomeAssistantError("Device ID is required")
+        
+        _LOGGER.info("Updating device %s: name=%s, type=%s", device_id, name, device_type)
+        
+        # Update device information in all coordinators
+        for coordinator in hass.data[DOMAIN].values():
+            if coordinator.data and "devices" in coordinator.data:
+                for device in coordinator.data["devices"]:
+                    if device.get("id") == device_id:
+                        if name:
+                            device["name"] = name
+                        if device_type:
+                            device["type"] = device_type
+                        await coordinator.async_request_refresh()
+                        break
+    
+    hass.services.async_register(
+        DOMAIN,
+        "refresh_data",
+        refresh_data_service,
+    )
+    
+    hass.services.async_register(
+        DOMAIN,
+        "update_device",
+        update_device_service,
+    )
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

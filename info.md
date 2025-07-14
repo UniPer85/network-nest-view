@@ -1,42 +1,49 @@
 # NetworkNest Integration
 
-Monitor your network infrastructure directly in Home Assistant with beautiful 3D visualizations and real-time data.
+NetworkNest is a comprehensive network monitoring solution for Home Assistant that provides real-time insights into your network infrastructure.
 
-## Features
+## Key Features
 
-- **Real-time Network Monitoring**: Track bandwidth usage, connected devices, and network status
-- **3D Dashboard**: Beautiful web interface with interactive 3D network visualization  
-- **Historical Data**: View detailed monitoring history with interactive charts
-- **Device Management**: Monitor routers, switches, access points, and custom devices
-- **Service Monitoring**: HTTP/HTTPS, TCP/UDP, ping, DNS, Docker, SQL, MQTT protocols
-- **Automation Ready**: Use network sensors in your Home Assistant automations
+- **Device Discovery**: Automatically discover and track all devices on your network
+- **Bandwidth Monitoring**: Real-time upload and download bandwidth tracking
+- **Network Analytics**: Comprehensive network performance metrics
+- **Custom Dashboard Cards**: Beautiful Lovelace cards for your Home Assistant dashboard
+- **Multi-Device Support**: Support for various network devices and protocols
 
-## Sensors
+## What You Get
 
-This integration creates the following sensors:
+After installation, you'll have access to:
 
-- **Network Bandwidth** (`sensor.network_bandwidth`): Current bandwidth usage in Mbps
-- **Connected Devices** (`sensor.connected_devices`): Number of devices connected to your network
-- **Network Status** (`sensor.network_status`): Network connectivity status (online/offline)
-- **Network Uptime** (`sensor.network_uptime`): Network uptime in hours
+- Network bandwidth sensors (total, upload, download)
+- Connected devices count
+- Network status monitoring
+- Individual device tracking
+- Custom Lovelace cards for dashboard integration
 
-## Setup
+## Requirements
 
-1. Deploy the NetworkNest web application (included in the repository)
-2. Create an account and configure your Home Assistant integration
-3. Get your API key from the Home Assistant settings page
-4. Add the integration in Home Assistant using your API key and base URL
+- Home Assistant 2023.1.0 or later
+- NetworkNest API access
+- Python 3.10 or later
 
-## Web Dashboard
+## Configuration
 
-Access the full NetworkNest dashboard at your deployed URL for:
-- 3D network topology visualization
-- Detailed device monitoring
-- Historical analytics and charts
-- Advanced configuration options
+The integration is configured through the Home Assistant UI:
+
+1. Navigate to Settings → Devices & Services
+2. Click "Add Integration"
+3. Search for "NetworkNest"
+4. Enter your API credentials
+5. Complete the setup wizard
+
+## Dashboard Cards
+
+Three custom cards are included:
+
+- **Device Card**: Individual device status and information
+- **Bandwidth Card**: Network bandwidth usage visualization
+- **Overview Card**: Complete network overview and statistics
 
 ## Support
 
-- [GitHub Repository](https://github.com/YOUR_USERNAME/networknest)
-- [Documentation](https://github.com/YOUR_USERNAME/networknest/blob/main/HACS_INSTALLATION.md)
-- [Report Issues](https://github.com/YOUR_USERNAME/networknest/issues)
+For support, documentation, and updates, visit our [GitHub repository](https://github.com/networknest/homeassistant-integration).

@@ -1,24 +1,53 @@
-# NetworkNest Integration Services
-# This file defines services that can be called from Home Assistant
-
 refresh_data:
   name: Refresh NetworkNest Data
-  description: Force refresh of NetworkNest data from API
+  description: Manually refresh NetworkNest data from the API
+  target:
+    integration: networknest
   fields:
     config_entry_id:
-      name: Config Entry ID
-      description: The configuration entry ID for the NetworkNest integration
+      name: Configuration Entry ID
+      description: The configuration entry ID to refresh (optional)
+      example: "01234567-89ab-cdef-0123-456789abcdef"
       required: false
       selector:
         text:
 
-test_connection:
-  name: Test NetworkNest Connection
-  description: Test the connection to NetworkNest API
+update_device:
+  name: Update Device Information
+  description: Update information for a specific network device
+  target:
+    integration: networknest
   fields:
-    config_entry_id:
-      name: Config Entry ID  
-      description: The configuration entry ID for the NetworkNest integration
+    device_id:
+      name: Device ID
+      description: The unique ID of the device to update
+      example: "device_123"
+      required: true
+      selector:
+        text:
+    name:
+      name: Device Name
+      description: The friendly name for the device
+      example: "Living Room TV"
       required: false
       selector:
         text:
+    device_type:
+      name: Device Type
+      description: The type of device
+      example: "Smart TV"
+      required: false
+      selector:
+        select:
+          options:
+            - "Computer"
+            - "Mobile"
+            - "Smart TV"
+            - "Gaming"
+            - "Network"
+            - "Tablet"
+            - "Smart Speaker"
+            - "IoT Device"
+            - "Router"
+            - "Switch"
+            - "Access Point"
