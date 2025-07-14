@@ -21,11 +21,11 @@ const Index = () => {
           </Link>
         </div>
         
-        <div className="flex justify-between items-center mb-6">
-          <NetworkHeader />
-        </div>
-        
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
+          {/* Full width header spanning all columns */}
+          <div className="lg:col-span-3">
+            <NetworkHeader />
+          </div>
           {/* Left column: All components stacked */}
           <div className="lg:col-span-2 space-y-6">
             <NetworkDashboard />
