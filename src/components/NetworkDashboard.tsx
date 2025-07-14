@@ -41,7 +41,7 @@ export const NetworkDashboard = () => {
       <div className="p-6">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-foreground">
-            Network Dashboard
+            General
           </h2>
           <Badge variant="outline" className="border-primary text-primary">
             All Systems Normal
