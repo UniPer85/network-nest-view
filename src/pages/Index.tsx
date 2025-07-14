@@ -25,12 +25,10 @@ const Index = () => {
           <NetworkHeader />
         </div>
         
-        {/* Full width Network Dashboard */}
-        <NetworkDashboard />
-        
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
-          {/* Left column: Remaining components stacked */}
+          {/* Left column: All components stacked */}
           <div className="lg:col-span-2 space-y-6">
+            <NetworkDashboard />
             <BandwidthChart />
             <DeviceGrid />
           </div>
