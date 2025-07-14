@@ -8,6 +8,8 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
+  console.log('Function called with method:', req.method)
+  
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -21,7 +23,10 @@ serve(async (req) => {
 
     // Get user from JWT token
     const authHeader = req.headers.get('Authorization')
+    console.log('Auth header present:', !!authHeader)
+    
     if (!authHeader) {
+      console.log('No auth header found')
       return new Response(
         JSON.stringify({ error: 'Authorization required' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -31,8 +36,12 @@ serve(async (req) => {
     const { data: { user }, error: authError } = await supabaseClient.auth.getUser(
       authHeader.replace('Bearer ', '')
     )
+    
+    console.log('User authenticated:', !!user)
+    console.log('Auth error:', authError)
 
     if (authError || !user) {
+      console.log('Authentication failed')
       return new Response(
         JSON.stringify({ error: 'Invalid authentication' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -40,14 +49,15 @@ serve(async (req) => {
     }
 
     if (req.method === 'GET') {
-      // Get existing Home Assistant configuration
+      console.log('Handling GET request')
       const { data: config, error } = await supabaseClient
         .from('homeassistant_config')
         .select('*')
         .eq('user_id', user.id)
         .single()
 
-      if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+      if (error && error.code !== 'PGRST116') {
+        console.log('GET error:', error)
         throw error
       }
 
@@ -58,15 +68,14 @@ serve(async (req) => {
     }
 
     if (req.method === 'POST') {
-      // Create new Home Assistant configuration
-      console.log('POST request received')
+      console.log('Handling POST request')
       const body = await req.json()
       console.log('Request body:', body)
       
       // Generate new API key
       console.log('Generating API key...')
       const { data: apiKey, error: rpcError } = await supabaseClient.rpc('generate_ha_api_key')
-      console.log('API key generated:', apiKey)
+      console.log('API key result:', apiKey, 'Error:', rpcError)
       
       if (rpcError) {
         console.error('RPC error:', rpcError)
@@ -99,7 +108,7 @@ serve(async (req) => {
     }
 
     if (req.method === 'PUT') {
-      // Update Home Assistant configuration
+      console.log('Handling PUT request')
       const body = await req.json()
       
       const { data: config, error } = await supabaseClient
@@ -114,6 +123,7 @@ serve(async (req) => {
         .single()
 
       if (error) {
+        console.error('PUT error:', error)
         throw error
       }
 
@@ -124,13 +134,14 @@ serve(async (req) => {
     }
 
     if (req.method === 'DELETE') {
-      // Delete Home Assistant configuration
+      console.log('Handling DELETE request')
       const { error } = await supabaseClient
         .from('homeassistant_config')
         .delete()
         .eq('user_id', user.id)
 
       if (error) {
+        console.error('DELETE error:', error)
         throw error
       }
 
@@ -140,6 +151,7 @@ serve(async (req) => {
       )
     }
 
+    console.log('Method not allowed:', req.method)
     return new Response(
       JSON.stringify({ error: 'Method not allowed' }),
       { status: 405, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -148,7 +160,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Config error:', error)
     return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
+      JSON.stringify({ error: 'Internal server error', details: error.message }),
       { 
         status: 500, 
         headers: { 
