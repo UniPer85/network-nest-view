@@ -73,15 +73,24 @@ const HomeAssistant = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
+      const session = await supabase.auth.getSession();
+      console.log('Session data:', session.data);
+      console.log('Form data:', formData);
+      
       const method = config ? 'PUT' : 'POST';
+      console.log('Using method:', method);
+      
       const { data, error } = await supabase.functions.invoke('homeassistant-config', {
         method,
         headers: {
-          Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          Authorization: `Bearer ${session.data.session?.access_token}`,
           'Content-Type': 'application/json'
         },
         body: formData
       });
+
+      console.log('Response data:', data);
+      console.log('Response error:', error);
 
       if (error) throw error;
 
@@ -92,6 +101,7 @@ const HomeAssistant = () => {
       });
     } catch (error) {
       console.error('Error saving config:', error);
+      console.error('Full error details:', JSON.stringify(error, null, 2));
       toast({
         title: "Error",
         description: "Failed to save Home Assistant configuration",
