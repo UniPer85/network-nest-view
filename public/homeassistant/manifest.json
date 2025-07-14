@@ -1,6 +1,6 @@
 {
-  "domain": "networknest",
-  "name": "NetworkNest",
+  "domain": "homeassistant",
+  "name": "Home Assistant NetworkNest",
   "documentation": "https://github.com/networknest/homeassistant-integration",
   "issue_tracker": "https://github.com/networknest/homeassistant-integration/issues",
   "dependencies": [],

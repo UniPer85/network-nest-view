@@ -3,7 +3,7 @@
   "name": "NetworkNest",
   "documentation": "https://github.com/networknest/homeassistant-integration",
   "issue_tracker": "https://github.com/networknest/homeassistant-integration/issues",
-  "dependencies": [],
+  "dependencies": ["http"],
   "codeowners": ["@networknest"],
   "requirements": ["aiohttp>=3.8.0"],
   "iot_class": "cloud_polling",
