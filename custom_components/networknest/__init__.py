@@ -10,6 +10,7 @@ from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.components.frontend import add_extra_js_url
+from homeassistant.components.http import StaticPathConfig
 from homeassistant.exceptions import HomeAssistantError
 
 from .const import DOMAIN, UPDATE_INTERVAL
@@ -66,12 +67,14 @@ async def _register_frontend_resources(hass: HomeAssistant) -> None:
     integration_dir = os.path.dirname(__file__)
     frontend_dir = os.path.join(integration_dir, "frontend")
     
-    # Register static files
-    hass.http.register_static_path(
-        f"/{DOMAIN}",
-        frontend_dir,
-        cache_headers=False,
-    )
+    # Register static files using async method
+    await hass.http.async_register_static_paths([
+        StaticPathConfig(
+            url_path=f"/{DOMAIN}",
+            path=frontend_dir,
+            cache_headers=False,
+        )
+    ])
     
     # Register custom cards
     cards = [
