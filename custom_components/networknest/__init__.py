@@ -22,22 +22,43 @@ PLATFORMS: list[Platform] = [Platform.SENSOR]
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up NetworkNest from a config entry."""
-    api = NetworkNestAPI(entry.data["api_key"], entry.data["base_url"])
+    _LOGGER.info("Setting up NetworkNest integration for entry %s", entry.entry_id)
     
-    coordinator = NetworkNestDataUpdateCoordinator(hass, api)
-    await coordinator.async_config_entry_first_refresh()
-    
-    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
-    
-    # Register frontend resources
-    await _register_frontend_resources(hass)
-    
-    # Register services
-    await _register_services(hass)
-    
-    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-    
-    return True
+    try:
+        api = NetworkNestAPI(entry.data["api_key"], entry.data["base_url"])
+        _LOGGER.info("Created API client with base URL: %s", entry.data["base_url"])
+        
+        coordinator = NetworkNestDataUpdateCoordinator(hass, api)
+        _LOGGER.info("Created data coordinator")
+        
+        # Try to fetch initial data
+        _LOGGER.info("Attempting first data refresh...")
+        await coordinator.async_config_entry_first_refresh()
+        _LOGGER.info("First data refresh completed successfully")
+        
+        hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
+        
+        # Register frontend resources
+        _LOGGER.info("Registering frontend resources...")
+        await _register_frontend_resources(hass)
+        
+        # Register services
+        _LOGGER.info("Registering services...")
+        await _register_services(hass)
+        
+        # Set up platforms
+        _LOGGER.info("Setting up platforms...")
+        await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+        
+        _LOGGER.info("NetworkNest integration setup completed successfully")
+        return True
+        
+    except Exception as exc:
+        _LOGGER.error("Failed to set up NetworkNest integration: %s", exc, exc_info=True)
+        # Clean up the API client if it was created
+        if 'api' in locals():
+            await api.close()
+        raise
 
 
 async def _register_frontend_resources(hass: HomeAssistant) -> None:
@@ -142,4 +163,11 @@ class NetworkNestDataUpdateCoordinator(DataUpdateCoordinator):
 
     async def _async_update_data(self):
         """Update data via library."""
-        return await self.api.async_get_states()
+        _LOGGER.debug("Fetching data from NetworkNest API...")
+        try:
+            data = await self.api.async_get_states()
+            _LOGGER.debug("Successfully fetched data: %s", data)
+            return data
+        except Exception as exc:
+            _LOGGER.error("Failed to fetch data from NetworkNest API: %s", exc, exc_info=True)
+            raise

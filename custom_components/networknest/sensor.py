@@ -28,11 +28,15 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up NetworkNest sensors based on a config entry."""
+    _LOGGER.info("Setting up NetworkNest sensors for entry %s", config_entry.entry_id)
+    
     coordinator: NetworkNestDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
     
     entities = []
     
     if coordinator.data:
+        _LOGGER.info("Coordinator data available: %s", list(coordinator.data.keys()) if isinstance(coordinator.data, dict) else type(coordinator.data))
+        
         # Create main network sensors
         if "bandwidth" in coordinator.data:
             entities.append(NetworkBandwidthSensor(coordinator, config_entry))
@@ -53,7 +57,12 @@ async def async_setup_entry(
             for device in coordinator.data["devices"]:
                 if isinstance(device, dict) and "id" in device:
                     entities.append(NetworkDeviceSensor(coordinator, config_entry, device))
+    else:
+        _LOGGER.warning("No coordinator data available, creating minimal sensors")
+        # Create basic sensors even without data
+        entities.append(NetworkStatusSensor(coordinator, config_entry))
     
+    _LOGGER.info("Created %d sensor entities", len(entities))
     async_add_entities(entities)
 
 

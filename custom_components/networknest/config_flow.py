@@ -4,6 +4,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
+import aiohttp
 import voluptuous as vol
 
 from homeassistant import config_entries
@@ -30,9 +31,22 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
     
     # Try to get discovery info to validate the API key
     try:
-        await api.async_get_discovery()
+        _LOGGER.info("Validating API connection to %s", data[CONF_BASE_URL])
+        discovery_data = await api.async_get_discovery()
+        _LOGGER.info("API validation successful, discovery data: %s", discovery_data)
+        
+        # Also try to get states to ensure both endpoints work
+        states_data = await api.async_get_states()
+        _LOGGER.info("States endpoint validation successful")
+        
+    except aiohttp.ClientError as exc:
+        _LOGGER.error("Connection error during validation: %s", exc)
+        raise CannotConnect from exc
     except Exception as exc:
+        _LOGGER.error("Authentication error during validation: %s", exc)
         raise InvalidAuth from exc
+    finally:
+        await api.close()
     
     return {"title": "NetworkNest"}
 

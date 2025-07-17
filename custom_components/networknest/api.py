@@ -31,12 +31,20 @@ class NetworkNestAPI:
         headers = {"x-api-key": self.api_key}
         url = f"{self.base_url}/functions/v1/{endpoint}"
         
+        _LOGGER.debug("Making request to %s with headers: %s", url, {k: v[:10] + "..." if k == "x-api-key" else v for k, v in headers.items()})
+        
         try:
             async with session.get(url, headers=headers) as response:
+                _LOGGER.debug("Response status: %s", response.status)
                 response.raise_for_status()
-                return await response.json()
+                data = await response.json()
+                _LOGGER.debug("Response data: %s", data)
+                return data
         except aiohttp.ClientError as exc:
             _LOGGER.error("Error making request to %s: %s", url, exc)
+            raise
+        except Exception as exc:
+            _LOGGER.error("Unexpected error making request to %s: %s", url, exc)
             raise
 
     async def async_get_discovery(self) -> dict[str, Any]:
