@@ -13,9 +13,26 @@ const generateNetworkData = (userId: string) => {
   const baseUptime = 168 // 7 days in hours
   const randomVariation = Math.random() * 0.1 - 0.05 // ±5% variation
   
+  // Generate mock device data
+  const deviceTypes = ['Computer', 'Mobile', 'Smart TV', 'Gaming', 'Tablet', 'IoT Device', 'Router', 'Smart Speaker']
+  const deviceNames = [
+    'Living Room TV', 'John\'s iPhone', 'Sarah\'s Laptop', 'Gaming Console',
+    'Smart Thermostat', 'Kitchen Tablet', 'Security Camera', 'Home Router'
+  ]
+  
+  const devices = Array.from({ length: 8 }, (_, i) => ({
+    id: `device_${i + 1}`,
+    name: deviceNames[i] || `Device ${i + 1}`,
+    type: deviceTypes[i % deviceTypes.length],
+    ip: `192.168.1.${100 + i}`,
+    status: Math.random() > 0.2 ? 'online' : 'offline', // 80% online
+    bandwidth: `${Math.round((Math.random() * 50 + 10) * 100) / 100} MB/s`
+  }))
+  
   return {
     bandwidth: Math.round((100 + (Math.random() * 50)) * 100) / 100, // 100-150 Mbps
-    connected_devices: Math.floor(8 + Math.random() * 8), // 8-16 devices
+    connected_devices: devices.filter(d => d.status === 'online').length,
+    devices: devices,
     network_status: Math.random() > 0.1 ? "online" : "offline", // 90% uptime
     uptime: Math.round((baseUptime + (baseUptime * randomVariation)) * 100) / 100,
     last_updated: now.toISOString()
@@ -77,13 +94,15 @@ serve(async (req) => {
     // Generate current network data
     const networkData = generateNetworkData(config.user_id)
     
-    // Return simplified data format for Home Assistant REST sensor
+    // Return data format for Home Assistant with individual device info
     const response = {
+      bandwidth: networkData.bandwidth,
       bandwidth_down: networkData.bandwidth * 0.8, // Simulate download speed
       bandwidth_up: networkData.bandwidth * 0.2,   // Simulate upload speed
       connected_devices: networkData.connected_devices,
-      status: networkData.network_status,
-      uptime_hours: networkData.uptime,
+      devices: networkData.devices,
+      network_status: networkData.network_status,
+      uptime: networkData.uptime,
       last_updated: networkData.last_updated
     }
 
