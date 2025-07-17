@@ -73,10 +73,15 @@ serve(async (req) => {
       console.log('Processing POST request')
       
       // Create new Home Assistant configuration
-      let body;
+      let body = {};
       try {
-        body = await req.json();
-        console.log('Request body:', body);
+        const requestBody = await req.text();
+        console.log('Raw request body:', requestBody);
+        
+        if (requestBody && requestBody.trim()) {
+          body = JSON.parse(requestBody);
+        }
+        console.log('Parsed request body:', body);
       } catch (bodyError) {
         console.error('Error parsing request body:', bodyError);
         return new Response(
@@ -85,14 +90,9 @@ serve(async (req) => {
         );
       }
 
-      // Validate required fields
-      if (!body.ha_instance_name) {
-        console.error('Missing required field: ha_instance_name');
-        return new Response(
-          JSON.stringify({ error: 'Missing required field: ha_instance_name' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
+      // Set defaults for optional fields
+      body.ha_instance_name = body.ha_instance_name || 'NetworkNest Integration';
+      body.enabled = body.enabled !== undefined ? body.enabled : true;
       
       // Generate new API key
       console.log('Generating API key...');

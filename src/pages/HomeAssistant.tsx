@@ -25,11 +25,7 @@ const HomeAssistant = () => {
   const [config, setConfig] = useState<HAConfig | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [formData, setFormData] = useState({
-    ha_instance_name: "",
-    ha_instance_url: "",
-    enabled: true
-  });
+  const [generating, setGenerating] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -52,11 +48,6 @@ const HomeAssistant = () => {
 
       if (data) {
         setConfig(data);
-        setFormData({
-          ha_instance_name: data.ha_instance_name,
-          ha_instance_url: data.ha_instance_url || "",
-          enabled: data.enabled
-        });
       }
     } catch (error) {
       console.error('Error fetching config:', error);
@@ -70,101 +61,50 @@ const HomeAssistant = () => {
     }
   };
 
-  const handleSave = async () => {
-    setSaving(true);
+  const generateAPIKey = async () => {
+    setGenerating(true);
     try {
       const session = await supabase.auth.getSession();
-      console.log('Session data:', session.data);
-      console.log('Form data before sending:', formData);
-      
-      // Validate form data before sending
-      if (!formData.ha_instance_name || formData.ha_instance_name.trim() === '') {
-        throw new Error('Home Assistant Instance Name is required');
-      }
-      
-      const method = config ? 'PUT' : 'POST';
-      console.log('Using method:', method);
-      
-      const requestBody = {
-        ha_instance_name: formData.ha_instance_name.trim(),
-        ha_instance_url: formData.ha_instance_url?.trim() || null,
-        enabled: formData.enabled
-      };
-      
-      console.log('Request body to send:', requestBody);
-      console.log('Request body JSON:', JSON.stringify(requestBody));
-      
-      // Get the access token
       const accessToken = session.data.session?.access_token;
+      
       if (!accessToken) {
         throw new Error('No access token available');
       }
       
-      console.log('Access token available:', !!accessToken);
-      
       const response = await supabase.functions.invoke('homeassistant-config', {
-        method,
+        method: 'POST',
         headers: {
           'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'application/json'
         },
-        body: requestBody
+        body: {
+          ha_instance_name: "NetworkNest Integration",
+          enabled: true
+        }
       });
 
-      console.log('Full response:', response);
-      console.log('Response data:', response.data);
-      console.log('Response error:', response.error);
-
-      // Check for function errors (non-2xx responses)
       if (response.error) {
-        console.error('Function error details:', response.error);
-        
-        // Try to extract more details from the error response
-        if (response.error.context) {
-          console.error('Error context:', response.error.context);
-        }
-        
         throw response.error;
       }
 
-      // Check if data exists and has the expected structure
       if (!response.data) {
         throw new Error('No data received from server');
       }
 
-      const configData = response.data;
-      console.log('Config data to set:', configData);
-      
-      setConfig(configData);
+      setConfig(response.data);
       toast({
         title: "Success",
-        description: `Home Assistant integration ${config ? 'updated' : 'created'} successfully`,
+        description: "API key generated successfully",
       });
     } catch (error) {
-      console.error('Error saving config:', error);
-      console.error('Error type:', typeof error);
-      console.error('Error message:', error?.message);
-      console.error('Full error object:', error);
-      
-      // Try to extract more details from FunctionsHttpError
-      if (error?.context) {
-        console.error('Error context:', error.context);
-      }
-      
-      let errorMessage = 'Unknown error occurred';
-      if (error?.message) {
-        errorMessage = error.message;
-      } else if (error?.toString) {
-        errorMessage = error.toString();
-      }
-      
+      console.error('Error generating API key:', error);
       toast({
         title: "Error",
-        description: `Failed to save Home Assistant configuration: ${errorMessage}`,
+        description: "Failed to generate API key",
         variant: "destructive",
       });
     } finally {
-      setSaving(false);
+      setGenerating(false);
     }
   };
 
@@ -185,11 +125,6 @@ const HomeAssistant = () => {
       if (error) throw error;
 
       setConfig(null);
-      setFormData({
-        ha_instance_name: "",
-        ha_instance_url: "",
-        enabled: true
-      });
       toast({
         title: "Success",
         description: "Home Assistant integration deleted successfully",
@@ -239,56 +174,22 @@ const HomeAssistant = () => {
         )}
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Configuration</CardTitle>
-          <CardDescription>
-            Set up your NetworkNest integration with Home Assistant
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="instance-name">Home Assistant Instance Name</Label>
-            <Input
-              id="instance-name"
-              placeholder="My Home Assistant"
-              value={formData.ha_instance_name}
-              onChange={(e) => setFormData({...formData, ha_instance_name: e.target.value})}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="instance-url">Home Assistant URL (Optional)</Label>
-            <Input
-              id="instance-url"
-              placeholder="http://homeassistant.local:8123"
-              value={formData.ha_instance_url}
-              onChange={(e) => setFormData({...formData, ha_instance_url: e.target.value})}
-            />
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="enabled"
-              checked={formData.enabled}
-              onCheckedChange={(checked) => setFormData({...formData, enabled: checked})}
-            />
-            <Label htmlFor="enabled">Enable Integration</Label>
-          </div>
-
-          <div className="flex gap-2">
-            <Button onClick={handleSave} disabled={saving || !formData.ha_instance_name}>
-              {saving ? <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : null}
-              {config ? 'Update' : 'Create'} Integration
+      {!config && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Generate API Key</CardTitle>
+            <CardDescription>
+              Generate an API key to use in your Home Assistant configuration
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button onClick={generateAPIKey} disabled={generating}>
+              {generating ? <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : null}
+              Generate API Key
             </Button>
-            {config && (
-              <Button variant="destructive" onClick={handleDelete} disabled={saving}>
-                Delete Integration
-              </Button>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
 
       {config && (
         <>
