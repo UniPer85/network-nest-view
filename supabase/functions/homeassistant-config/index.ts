@@ -18,12 +18,8 @@ serve(async (req) => {
 
   try {
     console.log('Processing request...')
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-    )
-
-    // Get user from JWT token
+    
+    // Get user from JWT token first
     const authHeader = req.headers.get('Authorization')
     console.log('Auth header present:', !!authHeader)
     
@@ -38,7 +34,21 @@ serve(async (req) => {
     const token = authHeader.replace('Bearer ', '')
     console.log('Token extracted (first 20 chars):', token.substring(0, 20))
     
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token)
+    // Create Supabase client with the user's JWT token
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      {
+        global: {
+          headers: {
+            Authorization: authHeader,
+          },
+        },
+      }
+    )
+
+    // Verify the user is authenticated
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser()
     console.log('Auth result:', { user: user?.id, error: authError })
 
     if (authError || !user) {
