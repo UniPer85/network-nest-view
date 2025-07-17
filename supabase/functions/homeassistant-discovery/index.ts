@@ -14,9 +14,10 @@ serve(async (req) => {
   }
 
   try {
+    // Use service role key for API key validation to bypass RLS
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     )
 
     // Extract API key from headers
@@ -29,19 +30,34 @@ serve(async (req) => {
     }
 
     // Validate API key and get user
+    console.log('Validating API key for discovery:', apiKey?.substring(0, 10) + '...')
+    
     const { data: config, error: configError } = await supabaseClient
       .from('homeassistant_config')
       .select('user_id, enabled')
       .eq('api_key', apiKey)
       .eq('enabled', true)
-      .single()
+      .maybeSingle()
 
-    if (configError || !config) {
+    console.log('Discovery config query result:', { config, configError })
+
+    if (configError) {
+      console.error('Discovery config query error:', configError)
       return new Response(
-        JSON.stringify({ error: 'Invalid API key' }),
+        JSON.stringify({ error: 'Database error', details: configError.message }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    if (!config) {
+      console.log('No config found for API key in discovery')
+      return new Response(
+        JSON.stringify({ error: 'Invalid API key. Please check your API key and try again.' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
+
+    console.log('API key validated successfully for discovery, user:', config.user_id)
 
     // Return Home Assistant discovery information
     const discovery = {
