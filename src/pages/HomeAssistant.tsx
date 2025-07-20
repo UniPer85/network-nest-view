@@ -12,7 +12,7 @@ import { Copy, RefreshCw, Home, ExternalLink, CheckCircle, Wifi, Key, ArrowLeft,
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import NetworkScanDialog from "@/components/NetworkScanDialog";
+
 
 interface HAConfig {
   id: string;
@@ -202,7 +202,7 @@ const HomeAssistant = () => {
           <CardHeader>
             <CardTitle>Setup NetworkNest Integration</CardTitle>
             <CardDescription>
-              Generate an API key and optionally scan your network for devices
+              Generate an API key for Home Assistant integration
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -215,10 +215,8 @@ const HomeAssistant = () => {
               Generate API Key
             </Button>
             
-            <NetworkScanDialog onScanComplete={fetchConfig} />
-            
             <p className="text-sm text-muted-foreground">
-              The network scan will replace demo devices with your actual network devices.
+              Visit the Admin Panel to scan your network for devices.
             </p>
           </CardContent>
         </Card>
@@ -228,15 +226,10 @@ const HomeAssistant = () => {
         <>
           <Card>
             <CardHeader>
-              <div className="flex justify-between items-center">
-                <div>
-                  <CardTitle>API Configuration</CardTitle>
-                  <CardDescription>
-                    Use these endpoints and API key in your Home Assistant configuration
-                  </CardDescription>
-                </div>
-                <NetworkScanDialog onScanComplete={fetchConfig} />
-              </div>
+              <CardTitle>API Configuration</CardTitle>
+              <CardDescription>
+                Use these endpoints and API key in your Home Assistant configuration. Visit the Admin Panel to scan your network for devices.
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">

@@ -41,9 +41,13 @@ import {
   Eye,
   Container,
   Database,
-  Globe
+  Globe,
+  Wifi,
+  Search,
+  RefreshCw
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import NetworkDiscoveryDialog from '@/components/NetworkDiscoveryDialog';
 
 interface MonitoredDevice {
   id: string;
@@ -455,22 +459,26 @@ const Admin = () => {
               <TabsTrigger value="services">Services</TabsTrigger>
             </TabsList>
             
-            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-              <DialogTrigger asChild>
-                <Button
-                  onClick={() => {
-                    if (activeTab === 'devices') {
-                      resetDeviceForm();
-                    } else {
-                      resetServiceForm();
-                    }
-                  }}
-                  className="flex items-center gap-2"
-                >
-                  <Plus className="h-4 w-4" />
-                  Add {activeTab === 'devices' ? 'Device' : 'Service'}
-                </Button>
-              </DialogTrigger>
+            <div className="flex gap-2">
+              <NetworkDiscoveryDialog onDevicesAdded={loadData} />
+              
+              <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button
+                    onClick={() => {
+                      if (activeTab === 'devices') {
+                        resetDeviceForm();
+                      } else {
+                        resetServiceForm();
+                      }
+                    }}
+                    variant="outline"
+                    className="flex items-center gap-2"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Add {activeTab === 'devices' ? 'Device' : 'Service'}
+                  </Button>
+                </DialogTrigger>
               <DialogContent className="max-w-md">
                 <DialogHeader>
                   <DialogTitle>
@@ -658,6 +666,7 @@ const Admin = () => {
                 )}
               </DialogContent>
             </Dialog>
+            </div>
           </div>
 
           <TabsContent value="devices">
