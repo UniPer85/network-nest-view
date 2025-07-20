@@ -11,6 +11,7 @@ import { Copy, RefreshCw, Home, ExternalLink, CheckCircle, Wifi, Key } from "luc
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import NetworkScanDialog from "@/components/NetworkScanDialog";
 
 interface HAConfig {
   id: string;
@@ -26,7 +27,7 @@ const HomeAssistant = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [generating, setGenerating] = useState(false);
-  const [isScanning, setIsScanning] = useState(false);
+  
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -142,35 +143,6 @@ const HomeAssistant = () => {
     }
   };
 
-  const handleNetworkScan = async () => {
-    if (!user) return;
-    
-    setIsScanning(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('network-scan', {
-        method: 'POST'
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: "Network Scan Complete",
-        description: data.message,
-      });
-
-      // Refresh the config to update device count
-      await fetchConfig();
-    } catch (error: any) {
-      console.error('Network scan error:', error);
-      toast({
-        title: "Scan Failed",
-        description: error.message || "Failed to scan network. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsScanning(false);
-    }
-  };
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -223,24 +195,7 @@ const HomeAssistant = () => {
               Generate API Key
             </Button>
             
-            <Button 
-              onClick={handleNetworkScan}
-              disabled={isScanning}
-              variant="outline"
-              className="w-full"
-            >
-              {isScanning ? (
-                <>
-                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                  Scanning Network...
-                </>
-              ) : (
-                <>
-                  <Wifi className="w-4 h-4 mr-2" />
-                  Scan My Network
-                </>
-              )}
-            </Button>
+            <NetworkScanDialog onScanComplete={fetchConfig} />
             
             <p className="text-sm text-muted-foreground">
               The network scan will replace demo devices with your actual network devices.
@@ -260,24 +215,7 @@ const HomeAssistant = () => {
                     Use these endpoints and API key in your Home Assistant configuration
                   </CardDescription>
                 </div>
-                <Button 
-                  onClick={handleNetworkScan}
-                  disabled={isScanning}
-                  variant="outline"
-                  size="sm"
-                >
-                  {isScanning ? (
-                    <>
-                      <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                      Scanning...
-                    </>
-                  ) : (
-                    <>
-                      <Wifi className="w-4 h-4 mr-2" />
-                      Scan Network
-                    </>
-                  )}
-                </Button>
+                <NetworkScanDialog onScanComplete={fetchConfig} />
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
