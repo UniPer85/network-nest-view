@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,7 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Copy, RefreshCw, Home, ExternalLink, CheckCircle, Wifi, Key } from "lucide-react";
+import { Copy, RefreshCw, Home, ExternalLink, CheckCircle, Wifi, Key, ArrowLeft, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -166,16 +167,35 @@ const HomeAssistant = () => {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center gap-2 mb-6">
-        <Home className="h-6 w-6" />
-        <h1 className="text-2xl font-bold">Home Assistant Integration</h1>
-        {config && (
-          <Badge variant={config.enabled ? "default" : "secondary"}>
-            {config.enabled ? "Active" : "Disabled"}
-          </Badge>
-        )}
-      </div>
+    <div className="min-h-screen bg-gradient-dark">
+      <div className="container mx-auto p-6 space-y-6">
+        {/* Navigation Header */}
+        <div className="flex justify-between items-center mb-6">
+          <div className="flex items-center gap-2">
+            <Home className="h-6 w-6" />
+            <h1 className="text-2xl font-bold">Home Assistant Integration</h1>
+            {config && (
+              <Badge variant={config.enabled ? "default" : "secondary"}>
+                {config.enabled ? "Active" : "Disabled"}
+              </Badge>
+            )}
+          </div>
+          
+          <div className="flex gap-2">
+            <Link to="/">
+              <Button variant="outline" className="flex items-center gap-2">
+                <ArrowLeft className="h-4 w-4" />
+                Dashboard
+              </Button>
+            </Link>
+            <Link to="/auth">
+              <Button variant="outline" className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                Admin Panel
+              </Button>
+            </Link>
+          </div>
+        </div>
 
       {!config && (
         <Card>
@@ -337,6 +357,7 @@ rest:
           </Card>
         </>
       )}
+      </div>
     </div>
   );
 };
