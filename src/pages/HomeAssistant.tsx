@@ -7,7 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Copy, RefreshCw, Home, ExternalLink, CheckCircle } from "lucide-react";
+import { Copy, RefreshCw, Home, ExternalLink, CheckCircle, Wifi, Key } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,6 +26,7 @@ const HomeAssistant = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -141,6 +142,36 @@ const HomeAssistant = () => {
     }
   };
 
+  const handleNetworkScan = async () => {
+    if (!user) return;
+    
+    setIsScanning(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('network-scan', {
+        method: 'POST'
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Network Scan Complete",
+        description: data.message,
+      });
+
+      // Refresh the config to update device count
+      await fetchConfig();
+    } catch (error: any) {
+      console.error('Network scan error:', error);
+      toast({
+        title: "Scan Failed",
+        description: error.message || "Failed to scan network. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsScanning(false);
+    }
+  };
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast({
@@ -177,16 +208,43 @@ const HomeAssistant = () => {
       {!config && (
         <Card>
           <CardHeader>
-            <CardTitle>Generate API Key</CardTitle>
+            <CardTitle>Setup NetworkNest Integration</CardTitle>
             <CardDescription>
-              Generate an API key to use in your Home Assistant configuration
+              Generate an API key and optionally scan your network for devices
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <Button onClick={generateAPIKey} disabled={generating}>
-              {generating ? <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : null}
+          <CardContent className="space-y-3">
+            <Button 
+              onClick={generateAPIKey} 
+              disabled={generating}
+              className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+            >
+              {generating ? <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : <Key className="w-4 h-4 mr-2" />}
               Generate API Key
             </Button>
+            
+            <Button 
+              onClick={handleNetworkScan}
+              disabled={isScanning}
+              variant="outline"
+              className="w-full"
+            >
+              {isScanning ? (
+                <>
+                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                  Scanning Network...
+                </>
+              ) : (
+                <>
+                  <Wifi className="w-4 h-4 mr-2" />
+                  Scan My Network
+                </>
+              )}
+            </Button>
+            
+            <p className="text-sm text-muted-foreground">
+              The network scan will replace demo devices with your actual network devices.
+            </p>
           </CardContent>
         </Card>
       )}
@@ -195,10 +253,32 @@ const HomeAssistant = () => {
         <>
           <Card>
             <CardHeader>
-              <CardTitle>API Configuration</CardTitle>
-              <CardDescription>
-                Use these endpoints and API key in your Home Assistant configuration
-              </CardDescription>
+              <div className="flex justify-between items-center">
+                <div>
+                  <CardTitle>API Configuration</CardTitle>
+                  <CardDescription>
+                    Use these endpoints and API key in your Home Assistant configuration
+                  </CardDescription>
+                </div>
+                <Button 
+                  onClick={handleNetworkScan}
+                  disabled={isScanning}
+                  variant="outline"
+                  size="sm"
+                >
+                  {isScanning ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                      Scanning...
+                    </>
+                  ) : (
+                    <>
+                      <Wifi className="w-4 h-4 mr-2" />
+                      Scan Network
+                    </>
+                  )}
+                </Button>
+              </div>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
